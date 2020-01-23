@@ -1,0 +1,10 @@
+player 1 entered
+player 2 entered
+player 3 entered
+player 4 entered
+player 5 entered
+player 6 entered
+player 7 entered
+player 8 entered
+player 9 entered
+player 10 entered
