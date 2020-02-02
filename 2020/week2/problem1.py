@@ -15,5 +15,5 @@ def bw(img):
 			img.set(j, i, (v, v, v))
 	return img
 
-img = load_picture("../week25/photo/trees.jpg")
+img = load_picture("../week1/photo/trees.jpg")
 bw(img).save_as("./1.png")

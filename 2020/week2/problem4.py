@@ -9,5 +9,5 @@ def reverse(img):
 			result.set(w-1-x, y, (r, g, b))
 	return result
 
-up = load_picture("../week25/photo/up.jpg")
+up = load_picture("../week1/photo/up.jpg")
 reverse(up).show()

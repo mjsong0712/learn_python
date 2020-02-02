@@ -14,5 +14,5 @@ def bw(img):
 	return result
 
 
-img = load_picture("../week25/photo/trees.jpg")
+img = load_picture("../week1/photo/trees.jpg")
 bw(img).show()

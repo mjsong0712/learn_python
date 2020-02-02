@@ -15,5 +15,5 @@ def adjust_light(img, factor):
 			result.set(x, y, (r, g, b))
 	return result
 
-prisoner = load_picture("../week25/photo/prisoner.jpg")
+prisoner = load_picture("../week1/photo/prisoner.jpg")
 adjust_light(prisoner, 0.6).show()

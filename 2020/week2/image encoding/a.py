@@ -13,7 +13,7 @@ def encode(background, cipher):
             result.set(x, y, (r, g, b))
     return result
 
-background = load_picture('./background.png')
+'''background = load_picture('./background.png')
 cipher = load_picture("./cipher.png")
 encoded = encode(background, cipher)
-encoded.save_as("./encoded.png")
+encoded.save_as("./encoded.png")'''
