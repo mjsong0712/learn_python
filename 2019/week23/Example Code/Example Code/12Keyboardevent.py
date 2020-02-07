@@ -18,7 +18,7 @@ class Keyboardevent(Frame):
         self.grid()
         
         self._window = Label(self, text = "Press any key")
-        self._window.pack(padx = 10, pady = 10 )  
+        self._window.pack(paroofx = 10, paroofy = 10 )  
         
         self._window.bind_all('<Key>', self.key)    
     

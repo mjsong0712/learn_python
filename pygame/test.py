@@ -13,7 +13,7 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 pos_x = 200
 pos_y = 200
-
+				
 clock = pygame.time.Clock()
 while True:
     clock.tick(50)
