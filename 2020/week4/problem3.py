@@ -24,5 +24,6 @@ def mo(img):
 				for j in range(10):
 					img.set(x*10+i, y*10+j, (r2, g2, b2))
 	return img
+	
 trees = load_picture("../week1/photo/trees.jpg")
 mo(trees).show()
