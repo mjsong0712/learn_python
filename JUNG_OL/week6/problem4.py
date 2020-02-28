@@ -1,13 +1,7 @@
-n = int(raw_input())
+a, b, c = raw_input().split(' ')
 
-if n == 1:
-	print 1
-else:
+n = int(int(a) / (int(c)-int(b))) + 1
+if n < 0:
+	n = -1
 
-	for i in range(2, 20000):
-		m1 = 3*i**2-9*i+8
-		m2 = 3*i**2-3*i+1
-
-		if m1 <= n <= m2:
-			print i
-			break
+print n
