@@ -9,15 +9,17 @@ fibonacci(10)
 
 
 
-
+cnt = 0
 
 def fibo_rec(n):
-	if n < 3:
-		return n-1
+	global cnt
+	cnt+=1
+	if n < 2:
+		return n
 	return fibo_rec(n-1) + fibo_rec(n-2)
 
 
-print fibo_rec(3)
 
-
-
+n = int(raw_input())
+print fibo_rec(n)
+print cnt
