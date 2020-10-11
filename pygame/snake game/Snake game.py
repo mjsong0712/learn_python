@@ -14,7 +14,7 @@ from datetime import datetime
 from datetime import timedelta
 
 GREEN = (0,255,0)
-BLACK = (0,0,0)
+BLACK = (100,100,200)
 WHITE = (255,255,255)
 
 
@@ -108,6 +108,8 @@ while True:
 	if timedelta(seconds = 1) <= datetime.now() - last_moved_time:
 		pass
 		#last_moved_time = datetime.now()
+
+	draw_background(screen)
 
 	game_board.draw(screen)
 	pygame.display.update()

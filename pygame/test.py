@@ -13,10 +13,10 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 pos_x = 200
 pos_y = 200
-				
+                
 clock = pygame.time.Clock()
 while True:
-    clock.tick(50)
+    clock.tick(10)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
