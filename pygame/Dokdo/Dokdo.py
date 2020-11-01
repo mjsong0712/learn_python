@@ -1,5 +1,7 @@
 import pygame
 import sys
+import random
+
 
 SCREEN_WIDTH = 2560
 SCREEN_HEIGHT = 1400
@@ -59,18 +61,92 @@ class Game():
 		textpos=text.get_rect()
 		textpos.x = 50
 		textpos.y = 20
-		screen.blit(text,textpos)
+		self.screen.blit(text,textpos)
 
 		text=fontSmall.render("Day : "+str(self.day),1,(0,0,0))
 		textpos=text.get_rect()
 		textpos.x = 2400
 		textpos.y = 20
-		screen.blit(text,textpos)
+		self.screen.blit(text,textpos)
 
 		self.screen.blit(self.gangBtn,self.gangBtnRect) #2
 
+
 	def saveGangchi(self):
-		pass
+		class Fish():
+			def __init__(self, size, screen):# size: 1,3,5
+				self.size = size
+				self.img = pygame.transform.scale(pygame.image.load('./res/fish_'+str(size)+'.png'), (100,100))
+				self.imgRect = self.img.get_rect()
+				self.imgRect.x = random.randint(100,SCREEN_WIDTH-100)
+				self.imgRect.y = random.randint(100,SCREEN_HEIGHT-100)
+				self.screen = screen
+
+				self.v_x = random.randint(-4,4)
+				self.v_y = random.randint(-4,4)
+
+			def move(self):
+				self.imgRect.x += self.v_x
+				self.imgRect.y += self.v_y
+				self.screen.blit(self.img, self.imgRect)
+
+
+
+
+
+
+		background = pygame.image.load('./res/sea_background.png')
+		background = pygame.transform.scale(background,(SCREEN_WIDTH,SCREEN_HEIGHT))
+		backgroundRect = background.get_rect()
+		backgroundRect.x = 0
+		backgroundRect.y = 0
+		
+		
+		gangchi = pygame.image.load('./res/gangchi.png')
+		gangchi = pygame.transform.scale(gangchi,(300,300))
+		gangchiRect = gangchi.get_rect()
+		gangchiRect.x = 1280
+		gangchiRect.y = 700
+
+		fish1 = Fish(1, self.screen)
+
+		
+		while True:
+			self.clock.tick(100)
+			for event in pygame.event.get():
+				if event.type == pygame.QUIT:
+					sys.exit()
+				if event.type == pygame.KEYDOWN:
+
+					if event.key == pygame.K_q:
+						return
+			keys = pygame.key.get_pressed()
+			if (keys[pygame.K_UP]):
+				gangchiRect.y -= 5
+
+			if (keys[pygame.K_DOWN]):
+				gangchiRect.y += 5
+
+			if (keys[pygame.K_LEFT]):
+				gangchiRect.x -= 5
+
+			if (keys[pygame.K_RIGHT]):
+				gangchiRect.x += 5
+
+
+
+			self.screen.blit(background,backgroundRect)
+
+
+
+
+			fish1.move()
+			self.screen.blit(gangchi,gangchiRect)
+
+
+			pygame.display.update()
+
+
 
 
 
