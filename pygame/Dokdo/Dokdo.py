@@ -213,16 +213,16 @@ class Game():
 
 
 	def jumpReef(self):
-		boat_size = (400,330)
+		boat_size = (300,248)
 		class reef():
 			def __init__(self,reefspeed,screen):
 				self.screen = screen
 				self.reefspeed = reefspeed
-				self.size = (217,160)
+				self.size = (173,128)
 				self.img = pygame.transform.scale(pygame.image.load('./res/reef.png'), self.size)
 				self.imgRect = self.img.get_rect()
 				self.imgRect.x = 2600
-				self.imgRect.y = 880
+				self.imgRect.y = 910
 			
 			def move(self):
 				self.imgRect.x -= self.reefspeed
@@ -255,21 +255,21 @@ class Game():
 		boat = pygame.image.load('./res/boat.png')
 		boat = pygame.transform.scale(boat,boat_size)
 		boatRect = boat.get_rect()
-		boatRect.x = 300
-		boatRect.y = 700
+		boatRect.x = 220
+		boatRect.y = 760
 
 
 
 		isjumping = False
 
 		
-		a = 8
+		a = 5
 		#v = -20
 		r_n = 0
 		reef_L = [reef(20,self.screen)]
 		
 		t = time.time()
-
+		interval = random.uniform(2,3)
 		while True:
 
 			self.clock.tick(100)
@@ -283,15 +283,15 @@ class Game():
 					if event.key == pygame.K_SPACE:
 						if not isjumping:
 							isjumping = True
-							v = -90
+							v = -80
 			
 			
 			if isjumping:
 				v+=a
 				boatRect.y+=v
-				if boatRect.y >= 700:
+				if boatRect.y >= 760:
 					isjumping = False
-					boatRect.y = 700
+					boatRect.y = 760
 					
 
 
@@ -299,11 +299,13 @@ class Game():
 			self.screen.blit(background,backgroundRect)
 
 			
-			if 8 / (r_n + 4) <= time.time()-t:
+			if interval <= time.time()-t:
+				interval = random.uniform(0.5 + (3/(r_n+2)), 1 + (4/(r_n+2)))
 				t = time.time()
-				print ("c@@")
 				reef_L.append(reef(20 + r_n * 1,self.screen))
+				print(time.time())
 				r_n += 1
+				
 
 
 
@@ -311,18 +313,135 @@ class Game():
 			for i in range(len(reef_L)):
 				reef_L[i].move()
 				if reef_L[i].collide(boatRect):
-					pass
-					print ("collide")
-					#gane over
+					font = pygame.font.SysFont("notosanscjkkr",100)
+					text = font.render("GameOver",True,(28,0,0))
+					self.screen.blit(text,(1200,700))
+					pygame.display.update()
+					time.sleep(1)
 
-			if reef_L[0].imgRect.x <= 0:
+					return
+
+
+			if reef_L and reef_L[0].imgRect.x <= 0:
 				reef_L.remove(reef_L[0])
+				self.money += 1
 			
 			
 			self.screen.blit(boat,boatRect)
 			pygame.display.update()
 
 
+	def Mine(self):
+		mineral_info = {'stone':(2,5),
+						'iron':(5,10),
+						'gold':(10,17),
+						'diamond':(20,20)}
+		class mineral():
+			def __init__(self,itemname):
+				self.itemname = itemname
+				self.size = {'stone':(380,310),'iron':(370,352),'gold':(370,352),'diamond':(308,288)}
+				self.img = pygame.transform.scale(pygame.image.load('./res/'+self.itemname+'.png'),self.size[itemname] )
+				self.imgRect = self.img.get_rect()
+				self.price = mineral_info[itemname][0]
+				self.time = mineral_info[itemname][1]
+
+			
+
+			def collide(self, pos):
+				x, y = pos
+				if self.imgRect.x < x < self.imgRect.x + self.size[self.itemname][0]:
+					if self.imgRect.y < y < self.imgRect.y + self.size[self.itemname][1]:
+						return True
+				return False
+
+
+
+		background = pygame.image.load('./res/cave.jpg')
+		background = pygame.transform.scale(background,(SCREEN_WIDTH,SCREEN_HEIGHT))
+		backgroundRect = background.get_rect()
+		backgroundRect.x = 0
+		backgroundRect.y = 0
+
+		D = mineral('diamond')
+		D.imgRect.x, D.imgRect.y = 300, 600
+
+		G = mineral('gold')
+		G.imgRect.x, G.imgRect.y = 800, 600
+		
+		I = mineral('iron')
+		I.imgRect.x, I.imgRect.y = 1300, 600
+		
+		S = mineral('stone')
+		S.imgRect.x, S.imgRect.y = 1800, 600
+
+
+
+# money따라 바뀌는걸로 수정
+		level = self.stage[3]
+		if level > 5:
+			level = 5
+
+		px = pygame.image.load('./res/Lv'+str(level)+'Px.png')
+		px = pygame.transform.scale(px,(340,255))
+		pxRect = px.get_rect()
+
+
+		minerals = [None, D, G, I, S]
+		isClicking = 0
+
+		while True:
+			self.clock.tick(100)
+			for event in pygame.event.get():
+				if event.type == pygame.QUIT:
+					sys.exit()
+				if event.type == pygame.KEYDOWN:
+					if event.key == pygame.K_q:
+						return
+				if event.type == pygame.MOUSEBUTTONDOWN:
+					t = time.time()
+					for i in range(1,5):
+						if minerals[i].collide(event.pos):
+							isClicking = i
+				if event.type == pygame.MOUSEBUTTONUP:
+					isClicking = 0
+
+
+
+			self.screen.blit(background,backgroundRect)
+			self.screen.blit(S.img,S.imgRect)
+			self.screen.blit(I.img,I.imgRect)
+			self.screen.blit(G.img,G.imgRect)
+			self.screen.blit(D.img,D.imgRect)
+
+			mspos = pygame.mouse.get_pos()
+			pxRect.x, pxRect.y = mspos[0] - 170, mspos[1] - 127
+			
+			def calcAngle(angle, maxangle):
+				angle = int(angle)
+				if (angle//maxangle) % 2 == 0:
+					return angle % maxangle
+				return 2 * maxangle - angle % (2 * maxangle)
+
+			if isClicking:
+				angle = calcAngle(((time.time()-t))*200, 30)
+				rot_px = pygame.transform.rotate(px, angle)
+				self.screen.blit(rot_px, rot_px.get_rect(center=mspos))
+
+				if not minerals[isClicking].collide(mspos):
+					isClicking = 0
+				else:
+					if time.time()-t >= minerals[isClicking].time:
+						self.money += minerals[isClicking].price
+						print("fin")
+						isClicking = 0
+			else:
+
+				self.screen.blit(px, pxRect)
+
+
+
+			pygame.display.update()
+			
 
 
 
@@ -352,6 +471,11 @@ class Game():
 
 					if self.reefBtnRect.collidepoint(x, y):
 						self.jumpReef() # 3
+						self.day += 1
+						self.stage[0] += 1
+
+					if self.mineBtnRect.collidepoint(x, y):
+						self.Mine() # 3
 						self.day += 1
 						self.stage[0] += 1
 
