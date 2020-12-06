@@ -38,7 +38,7 @@ class Game():
 	def __init__(self, screen):
 		self.money = 0
 		self.day = 1
-		self.stage = [1,1,1,1,1]
+		self.stage = [1,1,1,1]
 		self.clock = pygame.time.Clock()
 		self.screen = screen
 
@@ -145,6 +145,9 @@ class Game():
 		gangchiRect.x = 1280
 		gangchiRect.y = 700
 
+		
+
+
 		fishL = []
 
 		for i in range(5):
@@ -158,7 +161,6 @@ class Game():
 				if event.type == pygame.QUIT:
 					sys.exit()
 				if event.type == pygame.KEYDOWN:
-
 					if event.key == pygame.K_q:
 						return
 
@@ -179,8 +181,11 @@ class Game():
 
 			self.screen.blit(background, backgroundRect)
 			
-
-
+			text=fontSmall.render("Money : "+str(self.money),1,(0,0,0))
+			textpos=text.get_rect()
+			textpos.x = 50
+			textpos.y = 20
+			self.screen.blit(text, textpos)
 
 			i = 0
 			while i < len(fishL):
@@ -200,7 +205,7 @@ class Game():
 				time.sleep(1)
 				return
 
-
+			self.screen.blit(text,textpos)
 			self.screen.blit(gangchi,gangchiRect)
 
 			pygame.display.update()
@@ -258,6 +263,12 @@ class Game():
 		boatRect.x = 220
 		boatRect.y = 760
 
+		text=fontSmall.render("Money : "+str(self.money),1,(0,0,0))
+		textpos=text.get_rect()
+		textpos.x = 50
+		textpos.y = 20
+		
+
 
 
 		isjumping = False
@@ -297,7 +308,11 @@ class Game():
 
 			self.screen.blit(sky,skyRect)
 			self.screen.blit(background,backgroundRect)
-
+			text=fontSmall.render("Money : "+str(self.money),1,(0,0,0))
+			textpos=text.get_rect()
+			textpos.x = 50
+			textpos.y = 20
+			self.screen.blit(text, textpos)
 			
 			if interval <= time.time()-t:
 				interval = random.uniform(0.5 + (3/(r_n+2)), 1 + (4/(r_n+2)))
@@ -332,10 +347,19 @@ class Game():
 
 
 	def Mine(self):
-		mineral_info = {'stone':(2,5),
-						'iron':(5,10),
-						'gold':(10,17),
-						'diamond':(20,20)}
+		level = 1
+		if 20 <= self.money and self.money < 40:
+			level = 2
+		if 40 <= self.money and self.money < 60:
+			level = 3
+		if 60 <= self.money and self.money < 80:
+			level = 4
+		if 80 <= self.money:
+			level = 5
+		mineral_info = {'stone':(2,5/level),
+						'iron':(5,10/level),
+						'gold':(10,17/level),
+						'diamond':(20,20/level)}
 		class mineral():
 			def __init__(self,itemname):
 				self.itemname = itemname
@@ -377,12 +401,13 @@ class Game():
 
 
 # money따라 바뀌는걸로 수정
-		level = self.stage[3]
-		if level > 5:
-			level = 5
+		pxL = [(340,255),(305,293),(202,192),(331,331),(331,331)]
+		
+		
+
 
 		px = pygame.image.load('./res/Lv'+str(level)+'Px.png')
-		px = pygame.transform.scale(px,(340,255))
+		px = pygame.transform.scale(px,(pxL[level-1][0],pxL[level-1][1]))
 		pxRect = px.get_rect()
 
 
@@ -412,6 +437,11 @@ class Game():
 			self.screen.blit(I.img,I.imgRect)
 			self.screen.blit(G.img,G.imgRect)
 			self.screen.blit(D.img,D.imgRect)
+			text=fontSmall.render("Money : "+str(self.money),1,(0,0,0))
+			textpos=text.get_rect()
+			textpos.x = 50
+			textpos.y = 20
+			self.screen.blit(text, textpos)
 
 			mspos = pygame.mouse.get_pos()
 			pxRect.x, pxRect.y = mspos[0] - 170, mspos[1] - 127
@@ -441,7 +471,81 @@ class Game():
 
 
 			pygame.display.update()
+		
+
+	def clean(self):
+		class Trash():
+			def __init__(self):
+				imgL = ['pet.png','pet2.png','paper.png']
+				self.img = pygame.image.load('./res/'+random.choice(imgL))
+				self.imgRect = self.img.get_rect()
+				self.imgRect.x = random.randint(0,2400)
+				self.imgRect.y = random.randint(0,1200)
+
+			def collide(self,x,y):
+				return self.imgRect.collidepoint(x,y)
+
+
+		background = pygame.image.load('./res/sea_background.png')
+		background = pygame.transform.scale(background,(SCREEN_WIDTH,SCREEN_HEIGHT))
+		backgroundRect = background.get_rect()
+		backgroundRect.x = 0
+		backgroundRect.y = 0
+
+		trashbin = pygame.image.load('./res/trashbin.png')
+		trashbin = pygame.transform.scale(trashbin,(380,436))
+		trashbinRect = trashbin.get_rect()
+		trashbinRect.x = 2200
+		trashbinRect.y = 1000
+		
+		trashL = []
+		for i in range(5):
+			trashL.append(Trash())
+
+		n = -1
+		dx, dy = 0,0
+
+		while True:
+			self.clock.tick(100)
+			for event in pygame.event.get():
+				if event.type == pygame.QUIT:
+					sys.exit()
+				if event.type == pygame.KEYDOWN:
+					if event.key == pygame.K_q:
+						return
+				if event.type == pygame.MOUSEBUTTONDOWN:
+					x, y = event.pos
+					for i in range(len(trashL)):
+						if trashL[i].collide(x, y):
+							tx = trashL[i].imgRect.x
+							ty = trashL[i].imgRect.y
+							dx = tx - x
+							dy = ty - y
+							n = i
+							break
+
+
+				if event.type == pygame.MOUSEBUTTONUP and 0 <= n:
+					trashL[n].imgRect.x = tx
+					trashL[n].imgRect.y = ty
+					n = -1
+					# HOMEWORk! 휴지통 위에 있는지 확인
+					# 보스 스테이지(침략) 기획, 사진 따오기
+
+
 			
+			if 0 <= n:
+				mspos = pygame.mouse.get_pos()
+				trashL[n].imgRect.x = mspos[0] + dx
+				trashL[n].imgRect.y = mspos[1] + dy
+				
+
+			self.screen.blit(background,backgroundRect)
+			self.screen.blit(trashbin,trashbinRect)
+			for i in range(len(trashL)):
+				self.screen.blit(trashL[i].img,trashL[i].imgRect)
+			pygame.display.update()
+
 
 
 
@@ -472,12 +576,17 @@ class Game():
 					if self.reefBtnRect.collidepoint(x, y):
 						self.jumpReef() # 3
 						self.day += 1
-						self.stage[0] += 1
+						self.stage[1] += 1
 
 					if self.mineBtnRect.collidepoint(x, y):
 						self.Mine() # 3
 						self.day += 1
-						self.stage[0] += 1
+						self.stage[2] += 1
+
+					if self.cleanBtnRect.collidepoint(x, y):
+						self.clean()
+						self.day += 1
+						self.stage[3] += 1
 
 
 
