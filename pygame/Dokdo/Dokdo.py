@@ -477,10 +477,15 @@ class Game():
 		class Trash():
 			def __init__(self):
 				imgL = ['pet.png','pet2.png','paper.png']
-				self.img = pygame.image.load('./res/'+random.choice(imgL))
+				imgSize = [(134,51),(98,137),(108,126)]
+				self.i = random.randint(0,2)
+				self.size = imgSize[self.i]
+				self.img = pygame.transform.scale(pygame.image.load('./res/'+ imgL[self.i]),self.size)
 				self.imgRect = self.img.get_rect()
 				self.imgRect.x = random.randint(0,2400)
 				self.imgRect.y = random.randint(0,1200)
+				self.isFalling = 0
+				self.v = 5
 
 			def collide(self,x,y):
 				return self.imgRect.collidepoint(x,y)
@@ -526,11 +531,20 @@ class Game():
 
 
 				if event.type == pygame.MOUSEBUTTONUP and 0 <= n:
-					trashL[n].imgRect.x = tx
-					trashL[n].imgRect.y = ty
-					n = -1
-					# HOMEWORk! 휴지통 위에 있는지 확인
+					x, y = event.pos
+					if trashbinRect.x <= trashL[n].imgRect.x and  trashL[n].imgRect.x + trashL[n].size[0] <= trashbinRect.x + 380 and trashL[n].imgRect.y + trashL[n].size[1] <= trashbinRect.y and  trashbinRect.y - 500 <= trashL[n].imgRect.y:
+						trashL[n].isFalling = 1
+						n = -1
+						print("o")
+					else:
+						trashL[n].imgRect.x = tx
+						trashL[n].imgRect.y = ty
+						n = -1
+					
+					
+					# HOMEWORk!
 					# 보스 스테이지(침략) 기획, 사진 따오기
+					# * 떨어지는 모션 수정
 
 
 			
@@ -541,9 +555,18 @@ class Game():
 				
 
 			self.screen.blit(background,backgroundRect)
-			self.screen.blit(trashbin,trashbinRect)
+			
 			for i in range(len(trashL)):
+				if trashL[i].isFalling == 1:
+					trashL[i].imgRect.y += trashL[i].v
+					trashL[i].v += 1
+					if trashL[i].imgRect.y + 50 >= trashbinRect.y:
+						trashL[i].isFalling = 0
+
 				self.screen.blit(trashL[i].img,trashL[i].imgRect)
+			
+
+			self.screen.blit(trashbin,trashbinRect)
 			pygame.display.update()
 
 
