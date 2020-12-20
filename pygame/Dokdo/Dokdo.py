@@ -155,6 +155,12 @@ class Game():
 			fishL.append(Fish(3,self.screen,self.stage[0], gangchiRect))
 			fishL.append(Fish(5,self.screen,self.stage[0], gangchiRect))
 		
+		t=time.time()
+		timetext=fontSmall.render("%.1f sec"%(30-(time.time()-t)),1,(0,0,0))
+		timetextpos=timetext.get_rect()
+		timetextpos.x = 50
+		timetextpos.y = 20
+		
 		while True:
 			self.clock.tick(100)
 			for event in pygame.event.get():
@@ -205,6 +211,17 @@ class Game():
 				time.sleep(1)
 				return
 
+			if 30-(time.time()-t) <= 0:
+				text=fontSmall.render("Time Over",1,(0,0,0))
+				textpos=text.get_rect()
+				textpos.x = 800
+				textpos.y = 800
+
+				self.screen.blit(text,textpos)
+				pygame.display.update()
+
+				time.sleep(1)
+				return
 			self.screen.blit(text,textpos)
 			self.screen.blit(gangchi,gangchiRect)
 
@@ -414,6 +431,11 @@ class Game():
 		minerals = [None, D, G, I, S]
 		isClicking = 0
 
+		timetext=fontSmall.render("%.1f sec"%(30-(time.time()-t)),1,(0,0,0))
+		timetextpos=timetext.get_rect()
+		timetextpos.x = 50
+		timetextpos.y = 20
+		
 		while True:
 			self.clock.tick(100)
 			for event in pygame.event.get():
@@ -442,10 +464,21 @@ class Game():
 			textpos.x = 50
 			textpos.y = 20
 			self.screen.blit(text, textpos)
-
+			t=time.time()
 			mspos = pygame.mouse.get_pos()
 			pxRect.x, pxRect.y = mspos[0] - 170, mspos[1] - 127
 			
+			if 30-(time.time()-t) <= 0:
+				text=fontSmall.render("Time Over",1,(0,0,0))
+				textpos=text.get_rect()
+				textpos.x = 800
+				textpos.y = 800
+
+				self.screen.blit(text,textpos)
+				pygame.display.update()
+
+				time.sleep(1)
+				return
 			def calcAngle(angle, maxangle):
 				angle = int(angle)
 				if (angle//maxangle) % 2 == 0:
@@ -497,20 +530,29 @@ class Game():
 		backgroundRect.x = 0
 		backgroundRect.y = 0
 
-		trashbin = pygame.image.load('./res/trashbin.png')
+		trashbin = pygame.image.load('./res/trashbin_front.png')
 		trashbin = pygame.transform.scale(trashbin,(380,436))
 		trashbinRect = trashbin.get_rect()
 		trashbinRect.x = 2200
 		trashbinRect.y = 1000
+
+		trashbinb = pygame.image.load('./res/trashbin_back.png')
+		trashbinb = pygame.transform.scale(trashbinb,(380,436))
+		trashbinbRect = trashbinb.get_rect()
+		trashbinbRect.x = 2200
+		trashbinbRect.y = 1000
 		
 		trashL = []
-		for i in range(5):
+		for i in range(3+int(self.stage[2]*1.5)):
 			trashL.append(Trash())
+		
+		T = [0 for i in range(len(trashL))]
 
 		n = -1
 		dx, dy = 0,0
-
+		t = time.time()
 		while True:
+			
 			self.clock.tick(100)
 			for event in pygame.event.get():
 				if event.type == pygame.QUIT:
@@ -544,9 +586,14 @@ class Game():
 					
 					# HOMEWORk!
 					# 보스 스테이지(침략) 기획, 사진 따오기
-					# * 떨어지는 모션 수정
 
+			
+			
 
+			timetext=fontSmall.render("%.1f sec"%(30-(time.time()-t)),1,(0,0,0))
+			timetextpos=timetext.get_rect()
+			timetextpos.x = 50
+			timetextpos.y = 20
 			
 			if 0 <= n:
 				mspos = pygame.mouse.get_pos()
@@ -555,19 +602,56 @@ class Game():
 				
 
 			self.screen.blit(background,backgroundRect)
+			self.screen.blit(timetext, timetextpos)
+			self.screen.blit(trashbinb,trashbinbRect)
 			
 			for i in range(len(trashL)):
 				if trashL[i].isFalling == 1:
 					trashL[i].imgRect.y += trashL[i].v
 					trashL[i].v += 1
-					if trashL[i].imgRect.y + 50 >= trashbinRect.y:
+					if trashL[i].imgRect.y -5 >= trashbinRect.y:
 						trashL[i].isFalling = 0
+						self.money += 1
+						T[i] = 1
 
 				self.screen.blit(trashL[i].img,trashL[i].imgRect)
-			
+
 
 			self.screen.blit(trashbin,trashbinRect)
+			
+
+			u = 1
+			for i in range(len(T)):
+
+				if T[i] == 0:
+					u = 0
+					break
+			if u == 1 :
+				text=fontSmall.render("Clear",1,(0,0,0))
+				textpos=text.get_rect()
+				textpos.x = 100
+				textpos.y = 100
+
+				self.screen.blit(text,textpos)
+				pygame.display.update()
+
+				time.sleep(1)
+				return
+
+			if 30-(time.time()-t) <= 0:
+				text=fontSmall.render("Time Over",1,(0,0,0))
+				textpos=text.get_rect()
+				textpos.x = 800
+				textpos.y = 800
+
+				self.screen.blit(text,textpos)
+				pygame.display.update()
+
+				time.sleep(1)
+				return
 			pygame.display.update()
+
+			
 
 
 
