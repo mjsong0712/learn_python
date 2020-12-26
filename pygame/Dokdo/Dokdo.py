@@ -156,10 +156,7 @@ class Game():
 			fishL.append(Fish(5,self.screen,self.stage[0], gangchiRect))
 		
 		t=time.time()
-		timetext=fontSmall.render("%.1f sec"%(30-(time.time()-t)),1,(0,0,0))
-		timetextpos=timetext.get_rect()
-		timetextpos.x = 50
-		timetextpos.y = 20
+		
 		
 		while True:
 			self.clock.tick(100)
@@ -184,13 +181,20 @@ class Game():
 			if (keys[pygame.K_RIGHT]):
 				gangchiRect.x += GANGCHI_SPEED
 
+			timetext=fontSmall.render("%.1f sec"%(30-(time.time()-t)),1,(0,0,0))
+			timetextpos=timetext.get_rect()
+			timetextpos.x = 50
+			timetextpos.y = 90
 
-			self.screen.blit(background, backgroundRect)
-			
 			text=fontSmall.render("Money : "+str(self.money),1,(0,0,0))
 			textpos=text.get_rect()
 			textpos.x = 50
 			textpos.y = 20
+			
+
+			self.screen.blit(background, backgroundRect)
+			self.screen.blit(timetext, timetextpos)
+			
 			self.screen.blit(text, textpos)
 
 			i = 0
@@ -431,11 +435,8 @@ class Game():
 		minerals = [None, D, G, I, S]
 		isClicking = 0
 
-		timetext=fontSmall.render("%.1f sec"%(30-(time.time()-t)),1,(0,0,0))
-		timetextpos=timetext.get_rect()
-		timetextpos.x = 50
-		timetextpos.y = 20
 		
+		p = time.time()
 		while True:
 			self.clock.tick(100)
 			for event in pygame.event.get():
@@ -452,23 +453,30 @@ class Game():
 				if event.type == pygame.MOUSEBUTTONUP:
 					isClicking = 0
 
+			timetext=fontSmall.render("%.1f sec"%(30-(time.time()-p)),1,(0,0,0))
+			timetextpos=timetext.get_rect()
+			timetextpos.x = 50
+			timetextpos.y = 90
 
-
-			self.screen.blit(background,backgroundRect)
-			self.screen.blit(S.img,S.imgRect)
-			self.screen.blit(I.img,I.imgRect)
-			self.screen.blit(G.img,G.imgRect)
-			self.screen.blit(D.img,D.imgRect)
 			text=fontSmall.render("Money : "+str(self.money),1,(0,0,0))
 			textpos=text.get_rect()
 			textpos.x = 50
 			textpos.y = 20
+
+			self.screen.blit(background,backgroundRect)
+			self.screen.blit(timetext, timetextpos)
+			self.screen.blit(S.img,S.imgRect)
+			self.screen.blit(I.img,I.imgRect)
+			self.screen.blit(G.img,G.imgRect)
+			self.screen.blit(D.img,D.imgRect)
+			
 			self.screen.blit(text, textpos)
-			t=time.time()
+
+
 			mspos = pygame.mouse.get_pos()
 			pxRect.x, pxRect.y = mspos[0] - 170, mspos[1] - 127
 			
-			if 30-(time.time()-t) <= 0:
+			if 30-(time.time()-p) <= 0:
 				text=fontSmall.render("Time Over",1,(0,0,0))
 				textpos=text.get_rect()
 				textpos.x = 800
@@ -479,6 +487,7 @@ class Game():
 
 				time.sleep(1)
 				return
+
 			def calcAngle(angle, maxangle):
 				angle = int(angle)
 				if (angle//maxangle) % 2 == 0:
@@ -545,6 +554,7 @@ class Game():
 		trashL = []
 		for i in range(3+int(self.stage[2]*1.5)):
 			trashL.append(Trash())
+
 		
 		T = [0 for i in range(len(trashL))]
 
@@ -574,14 +584,19 @@ class Game():
 
 				if event.type == pygame.MOUSEBUTTONUP and 0 <= n:
 					x, y = event.pos
-					if trashbinRect.x <= trashL[n].imgRect.x and  trashL[n].imgRect.x + trashL[n].size[0] <= trashbinRect.x + 380 and trashL[n].imgRect.y + trashL[n].size[1] <= trashbinRect.y and  trashbinRect.y - 500 <= trashL[n].imgRect.y:
+					if trashbinRect.x <= trashL[n].imgRect.x and \
+					trashL[n].imgRect.x + trashL[n].size[0] <= trashbinRect.x + 380 and \
+					trashL[n].imgRect.y + trashL[n].size[1] <= trashbinRect.y and  \
+					trashbinRect.y - 500 <= trashL[n].imgRect.y:
+
 						trashL[n].isFalling = 1
-						n = -1
+
 						print("o")
 					else:
 						trashL[n].imgRect.x = tx
 						trashL[n].imgRect.y = ty
-						n = -1
+					
+					n = -1
 					
 					
 					# HOMEWORk!
@@ -652,10 +667,23 @@ class Game():
 			pygame.display.update()
 
 			
+	def bossStage(self):
+		stage = self.day / 10
 
+		shoptext = pygame.image.load('./res/shopText.png')
+		shoptext = pygame.transform.scale(shoptext,(564, 289))
+		shoptextRect = shoptext.get_rect()
+		shoptextRect.x = 1200
+		shoptextRect.y = 50
 
-
-
+		pygame.draw.rect(screen, white, [0,0,SCREEN_WIDTH,SCREEN_HEIGHT],0)
+		screen.blit(shoptext, shoptextRect)
+		while True:
+			for event in pygame.event.get():
+				if event.type == pygame.QUIT:
+					sys.exit()
+			
+			pygame.display.update()
 
 
 
@@ -665,6 +693,9 @@ class Game():
 
 	def playGame(self):
 		while True:
+			if self.day % 10 == 0:
+				self.bossStage()
+				self.day += 1
 			#print("bb")
 			self.clock.tick(10)
 			for event in pygame.event.get():
