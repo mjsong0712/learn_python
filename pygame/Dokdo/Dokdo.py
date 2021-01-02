@@ -668,21 +668,72 @@ class Game():
 
 			
 	def bossStage(self):
+		class gun():
+			def __init__(self,size):
+				self.size = size
+				self.size_px = {0 : (329,227), 1 : (381,203), 2 : (861,223), 3 : (687,324)}
+				self.rect = {0 : (200,100), 1 : (200, 400), 2 : (200, 700), 3 : (200,1000)}
+				self.priceL = {0 : 10, 1 : 50, 2 : 100, 3 : 500}
+				self.img = pygame.transform.scale(pygame.image.load('./res/gun'+str(size)+'.png'), self.size_px[self.size])
+				self.imgRect = self.img.get_rect()
+				self.imgRect.x = self.rect[self.size][0]
+				self.imgRect.y = self.rect[self.size][1]
+				self.pricebtn = pygame.transform.scale(pygame.image.load('./res/gun'+str(size)+'price.png'), (209,128))
+				self.pricebtnRect = self.pricebtn.get_rect()
+				self.pricebtnRect.x = self.rect[self.size][0] + self.size_px[self.size][0] + 100
+				self.pricebtnRect.y = self.rect[self.size][1]
+		
 		stage = self.day / 10
+
+		G0 = gun(0)
+		G1 = gun(1)
+		G2 = gun(2)
+		G3 = gun(3)
+
+		L = [G0, G1, G2, G3]
+		slotL = [0,0,0,0]
 
 		shoptext = pygame.image.load('./res/shopText.png')
 		shoptext = pygame.transform.scale(shoptext,(564, 289))
 		shoptextRect = shoptext.get_rect()
-		shoptextRect.x = 1200
-		shoptextRect.y = 50
+		shoptextRect.x = 1000
+		shoptextRect.y = 50	
+
+		battlebtn = pygame.image.load('./res/battlestartbtn.png')
+		battlebtn = pygame.transform.scale(battlebtn,(484, 179))
+		battlebtnRect = battlebtn.get_rect()
+		battlebtnRect.x = 1800
+		battlebtnRect.y = 1000
 
 		pygame.draw.rect(screen, white, [0,0,SCREEN_WIDTH,SCREEN_HEIGHT],0)
 		screen.blit(shoptext, shoptextRect)
+		screen.blit(G0.img, G0.imgRect)
+		screen.blit(G0.pricebtn, G0.pricebtnRect)
+		screen.blit(G1.img, G1.imgRect)
+		screen.blit(G1.pricebtn, G1.pricebtnRect)
+		screen.blit(G2.img, G2.imgRect)
+		screen.blit(G2.pricebtn, G2.pricebtnRect)
+		screen.blit(G3.img, G3.imgRect)
+		screen.blit(G3.pricebtn, G3.pricebtnRect)
+
+		screen.blit(battlebtn, battlebtnRect)
+		
 		while True:
 			for event in pygame.event.get():
 				if event.type == pygame.QUIT:
 					sys.exit()
-			
+				if event.type == pygame.KEYDOWN:
+					if event.key == pygame.K_q:
+						sys.exit()
+				if event.type == pygame.MOUSEBUTTONDOWN:
+					x, y = event.pos
+					for i in range(len(L)):
+						if L[i].pricebtnRect.collidepoint(x, y):
+							
+							
+
+						
+						
 			pygame.display.update()
 
 
