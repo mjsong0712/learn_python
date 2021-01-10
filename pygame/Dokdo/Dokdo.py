@@ -37,7 +37,7 @@ def startScreen(screen):
 class Game():
 	def __init__(self, screen):
 		self.money = 0
-		self.day = 1
+		self.day = 8
 		self.stage = [1,1,1,1]
 		self.clock = pygame.time.Clock()
 		self.screen = screen
@@ -232,12 +232,6 @@ class Game():
 			pygame.display.update()
 
 
-
-
-
-
-
-
 	def jumpReef(self):
 		boat_size = (300,248)
 		class reef():
@@ -421,7 +415,7 @@ class Game():
 
 
 
-# money따라 바뀌는걸로 수정
+		# money따라 바뀌는걸로 수정
 		pxL = [(340,255),(305,293),(202,192),(331,331),(331,331)]
 		
 		
@@ -668,6 +662,7 @@ class Game():
 
 			
 	def bossStage(self):
+		stage = self.day / 10
 		class gun():
 			def __init__(self,size):
 				self.size = size
@@ -682,8 +677,41 @@ class Game():
 				self.pricebtnRect = self.pricebtn.get_rect()
 				self.pricebtnRect.x = self.rect[self.size][0] + self.size_px[self.size][0] + 100
 				self.pricebtnRect.y = self.rect[self.size][1]
-		
-		stage = self.day / 10
+
+		def slotSelect(slotL):
+			N = [1,2,3,4]
+			pygame.draw.rect(self.screen, white, [0,0,SCREEN_WIDTH,SCREEN_HEIGHT],0)
+			text=fontSmall.render("Money : "+str(self.money),1,(0,0,0))
+			textpos=text.get_rect()
+			textpos.x = 50
+			textpos.y = 20
+			self.screen.blit(text, textpos)
+			S = []
+			for i in range(4):
+				slotbtn = pygame.image.load('./res/slotgun' +str(slotL[i]) +'.png')
+				slotbtn = pygame.transform.scale(slotbtn,(342,158))
+				slotbtnRect = slotbtn.get_rect()
+				slotbtnRect.x = (400*N[i])+200
+				slotbtnRect.y = 600
+				self.screen.blit(slotbtn,slotbtnRect)
+				S.append(slotbtnRect)
+			pygame.display.update()
+			print("while in")
+			while True:
+				for event in pygame.event.get():
+					if event.type == pygame.QUIT:
+						sys.exit()
+					if event.type == pygame.KEYDOWN:
+						if event.key == pygame.K_q:
+							sys.exit()
+					if event.type == pygame.MOUSEBUTTONDOWN:
+						x, y = event.pos
+						for i in range(len(N)):
+							if S[i].collidepoint(x, y):
+								self.screen.blit(slotbtn,slotbtnRect)
+								pygame.display.update()
+								time.sleep(1)
+								return i
 
 		G0 = gun(0)
 		G1 = gun(1)
@@ -705,20 +733,31 @@ class Game():
 		battlebtnRect.x = 1800
 		battlebtnRect.y = 1000
 
-		pygame.draw.rect(screen, white, [0,0,SCREEN_WIDTH,SCREEN_HEIGHT],0)
-		screen.blit(shoptext, shoptextRect)
-		screen.blit(G0.img, G0.imgRect)
-		screen.blit(G0.pricebtn, G0.pricebtnRect)
-		screen.blit(G1.img, G1.imgRect)
-		screen.blit(G1.pricebtn, G1.pricebtnRect)
-		screen.blit(G2.img, G2.imgRect)
-		screen.blit(G2.pricebtn, G2.pricebtnRect)
-		screen.blit(G3.img, G3.imgRect)
-		screen.blit(G3.pricebtn, G3.pricebtnRect)
+		def drawShop():
+			text=fontSmall.render("Money : "+str(self.money),1,(0,0,0))
+			textpos=text.get_rect()
+			textpos.x = 50
+			textpos.y = 20
 
-		screen.blit(battlebtn, battlebtnRect)
-		
+			pygame.draw.rect(self.screen, white, [0,0,SCREEN_WIDTH,SCREEN_HEIGHT],0)
+			self.screen.blit(shoptext, shoptextRect)
+			self.screen.blit(G0.img, G0.imgRect)
+			self.screen.blit(G0.pricebtn, G0.pricebtnRect)
+			self.screen.blit(G1.img, G1.imgRect)
+			self.screen.blit(G1.pricebtn, G1.pricebtnRect)
+			self.screen.blit(G2.img, G2.imgRect)
+			self.screen.blit(G2.pricebtn, G2.pricebtnRect)
+			self.screen.blit(G3.img, G3.imgRect)
+			self.screen.blit(G3.pricebtn, G3.pricebtnRect)
+			self.screen.blit(text, textpos)
+
+			self.screen.blit(battlebtn, battlebtnRect)
+			pygame.display.update()
+
+		drawShop()
+
 		while True:
+
 			for event in pygame.event.get():
 				if event.type == pygame.QUIT:
 					sys.exit()
@@ -729,15 +768,34 @@ class Game():
 					x, y = event.pos
 					for i in range(len(L)):
 						if L[i].pricebtnRect.collidepoint(x, y):
+							if self.money >= L[i].priceL[i]:
+								self.money -= L[i].priceL[i]
+								print("slotSelect start")
+								selected = slotSelect(slotL)
+								print (selected)
+								print (selected+1)
+								slotL[selected] = i+1
+								print (slotL)
+								drawShop()
+								print("slotSelect end")
+							else:
+								text=fontSmall.render("Not available for purchase",1,(0,0,0))
+								textpos=text.get_rect()
+								textpos.x = 700
+								textpos.y = 20
+								self.screen.blit(text, textpos)
+								pygame.display.update()
+								time.sleep(1)
+								drawShop()
 							
-							
+					############### hw!!!!!!!!!!!!!!!!!!!!!!!!!
+					# 선택된거 표시( 상점 메뉴에서 슬롯 미리보기같은거 총 사진까지)
+					# 구매불가 잠깐 뜨고 사라지게
+					
 
 						
 						
-			pygame.display.update()
-
-
-
+					pygame.display.update()
 
 
 
@@ -785,15 +843,6 @@ class Game():
 
 
 			pygame.display.update()
-
-
-
-
-
-
-
-
-
 
 
 
