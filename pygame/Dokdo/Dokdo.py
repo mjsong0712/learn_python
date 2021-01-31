@@ -2,6 +2,7 @@ import pygame
 import sys
 import random
 import time
+import math
 
 SCREEN_WIDTH = 2560
 SCREEN_HEIGHT = 1400
@@ -36,7 +37,7 @@ def startScreen(screen):
 
 class Game():
 	def __init__(self, screen):
-		self.money = 0
+		self.money = 100
 		self.day = 8
 		self.stage = [1,1,1,1]
 		self.clock = pygame.time.Clock()
@@ -662,8 +663,21 @@ class Game():
 
 			
 	def bossStage(self):
-		stage = self.day / 10
-		class gun():
+		stage = int(self.day / 10)
+		class monster():
+			def __init__(self,stage,monsterspeed):
+				self.stage = stage
+				self.monsterspeed = monsterspeed
+				self.monster_size = {1 : (108,133), 2 : (381,203), 3 : (861,223), 4 : (687,324)}
+				self.monster = pygame.transform.scale(pygame.image.load('./res/monster'+str(stage)+'.png'), self.monster_size[stage])
+				self.monsterRect = self.monster.get_rect()
+				self.monsterRect.x = 2000
+				self.monsterRect.y = random.randint(50, 1100)
+
+			def move(self):
+				self.monsterRect.x -= self.monsterspeed
+
+		class Gun():
 			def __init__(self,size):
 				self.size = size
 				self.size_px = {1 : (329,227), 2 : (381,203), 3 : (861,223), 4 : (687,324)}
@@ -711,13 +725,12 @@ class Game():
 							if S[i].collidepoint(x, y):
 								self.screen.blit(slotbtn,slotbtnRect)
 								pygame.display.update()
-								time.sleep(1)
 								return i
 
-		G0 = gun(1)
-		G1 = gun(2)
-		G2 = gun(3)
-		G3 = gun(4)
+		G0 = Gun(1)
+		G1 = Gun(2)
+		G2 = Gun(3)
+		G3 = Gun(4)
 
 		L = [G0, G1, G2, G3]
 		slotL = [0,0,0,0]
@@ -733,6 +746,16 @@ class Game():
 		battlebtnRect = battlebtn.get_rect()
 		battlebtnRect.x = 1800
 		battlebtnRect.y = 1000
+
+		M1 = monster(stage,3)
+		M2 = monster(stage,3)
+		M3 = monster(stage,3)
+		M4 = monster(stage,3)
+
+		monsterL = [M1,M2,M3,M4]
+
+
+
 
 		def drawShop(slotL):
 			text=fontSmall.render("Money : "+str(self.money),1,(0,0,0))
@@ -765,19 +788,48 @@ class Game():
 			self.screen.blit(battlebtn, battlebtnRect)
 			pygame.display.update()
 
-
+		
 
 		def battle(slotL):
+			class Bullet:
+				def __init__(self, level, startPos, angle):
+					self.level = level
+					self.startPos = startPos
+					self.angle = angle
+					# hw 총알들 크기 조정해서 화면에 종류별로 다 띄우기
+
+					self.img = pygame.image.load('./res/bullet'+str(level)+'.png')
+					self.img = pygame.transform.scale(self.img,(43, 26))
+					self.imgRect = self.img.get_rect()
+					self.imgRect.x = startPos[0]
+					self.imgRect.y = startPos[1]
+
 			pygame.draw.rect(self.screen, white, [0,0,SCREEN_WIDTH,SCREEN_HEIGHT],0)
+			B1 = Bullet(1,(100,200),4)
+			B2 = Bullet(1,(100,400),4)
+			B3 = Bullet(1,(100,600),4)
+			B4 = Bullet(1,(100,800),4)
+
+			
+			GunL = []
 			for i in range(4):
 				if slotL[i] != 0:
-					G = gun(slotL[i])
+					G = Gun(slotL[i])
+					
 					G.img = pygame.transform.scale(G.img,(G.size_px[slotL[i]][0]//2, G.size_px[slotL[i]][1]//2))
 					G.imgRect = G.img.get_rect()
+					G.imgRect.x = 10
 					G.imgRect.y = 200 + (200*i)
-					self.screen.blit(G.img, G.imgRect)
 
+					GunL.append(G)
+					#self.screen.blit(G.img, G.imgRect)
+
+
+			monster_cnt = 4
+			t = time.time()
 			while True:
+				self.clock.tick(100)
+				
 				for event in pygame.event.get():
 					if event.type == pygame.QUIT:
 						sys.exit()
@@ -785,9 +837,71 @@ class Game():
 						if event.key == pygame.K_q:
 							sys.exit()
 
+
+				
+				
+				
+				
+				pygame.draw.rect(self.screen, white, [0,0,SCREEN_WIDTH,SCREEN_HEIGHT],0)
+
+
+				### 
+				self.screen.blit(B1.img, B1.imgRect)
+				self.screen.blit(B2.img, B2.imgRect)
+				self.screen.blit(B3.img, B3.imgRect)
+				self.screen.blit(B4.img, B4.imgRect)
+
+
+				text=fontSmall.render(str(30-monster_cnt) + "/30",1,(0,0,0))
+				textpos=text.get_rect()
+				textpos.x = 50
+				textpos.y = 20
+
+				self.screen.blit(text, textpos)
+
+
+
+				for i in range(len(monsterL)):
+					monsterL[i].move()
+					self.screen.blit(monsterL[i].monster, monsterL[i].monsterRect)
+				
+				if monsterL and monsterL[0].monsterRect.x <= 0:
+					monsterL.remove(monsterL[0])
+					text=fontSmall.render("game over",1,(0,0,0))
+					textpos=text.get_rect()
+					textpos.x = 50
+					textpos.y = 20
+
+					self.screen.blit(text, textpos)
+					return 0
+
+				for i in range(len(GunL)):
+
+					Gx = GunL[i].imgRect.x + GunL[i].size_px[GunL[i].size][0]//2
+					Gy = GunL[i].imgRect.y + GunL[i].size_px[GunL[i].size][1]//2
+
+					mspos = pygame.mouse.get_pos() 
+					angle = math.atan2(mspos[0]- Gx, mspos[1]- Gy) - math.pi/2
+					angle = angle * 180 / math.pi
+					rot_gun = pygame.transform.rotate(GunL[i].img, angle)
+					rot_rect = rot_gun.get_rect(center= (Gx,Gy))
+					self.screen.blit(rot_gun, rot_rect)
+
+					#self.screen.blit(GunL[i].img, GunL[i].imgRect)
+
 				pygame.display.update()
 
 
+				if time.time()-t >= 1:
+					monsterL.append(monster(stage,3))
+					monster_cnt += 1
+					t = time.time()
+					
+
+				
+
+			############### hw!!!!!!!!!!!!!!!!!!!!!!!!!
+			# 몬스터 나올 때마다 25/30 -> 24/30 이런 식으로 글씨 띄워주기
 
 
 
@@ -796,7 +910,6 @@ class Game():
 		drawShop(slotL)
 
 		while True:
-
 			for event in pygame.event.get():
 				if event.type == pygame.QUIT:
 					sys.exit()
@@ -827,10 +940,11 @@ class Game():
 								time.sleep(1)
 								drawShop(slotL)
 						if battlebtnRect.collidepoint(x, y):
-							battle(slotL)
+							result = battle(slotL)
+							return result
+
 							
-					############### hw!!!!!!!!!!!!!!!!!!!!!!!!!
-					# 몬스터 출현 - class - 왼쪽으로 일정한 속도로 움직이기
+
 					
 
 						
@@ -843,8 +957,12 @@ class Game():
 	def playGame(self):
 		while True:
 			if self.day % 10 == 0:
-				self.bossStage()
-				self.day += 1
+				result = self.bossStage()
+				
+				if result == 0:
+					return 0
+				else:
+					self.day += 1
 			#print("bb")
 			self.clock.tick(10)
 			for event in pygame.event.get():
@@ -893,28 +1011,50 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 		
 clock = pygame.time.Clock()
-startScreen(screen)
 
 
+while True:
 
-gameStart = 0
+	startScreen(screen)
 
-while not gameStart:
-	clock.tick(10)
-	for event in pygame.event.get():
-		if event.type == pygame.QUIT:
-			sys.exit()
-		if event.type == pygame.KEYDOWN:
-			if event.key == pygame.K_q:
+	gameStart = 0
+
+	while not gameStart:
+		clock.tick(10)
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
 				sys.exit()
-			if event.key == pygame.K_SPACE:
-				gameStart = 1
+			if event.type == pygame.KEYDOWN:
+				if event.key == pygame.K_q:
+					sys.exit()
+				if event.key == pygame.K_SPACE:
+					gameStart = 1
 
-	pygame.display.update()
+		pygame.display.update()
 
 
-game = Game(screen)
-game.playGame()
+	game = Game(screen)
+	result = game.playGame()
+
+	if result == 0:
+		continue
+	if result == 1:
+		pygame.draw.rect(screen, white, [0,0,SCREEN_WIDTH,SCREEN_HEIGHT],0)
+
+		text=fontSmall.render("Game clear",1,(0,0,0))
+		textpos=text.get_rect()
+		textpos.x = 700
+		textpos.y = 20
+
+		screen.blit(text, textpos)
+
+		pygame.display.update()
+		time.sleep(3)
+		break
+
+
+
+
 
 
 pygame.quit()
