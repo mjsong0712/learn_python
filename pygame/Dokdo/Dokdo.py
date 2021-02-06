@@ -747,12 +747,8 @@ class Game():
 		battlebtnRect.x = 1800
 		battlebtnRect.y = 1000
 
-		M1 = monster(stage,3)
-		M2 = monster(stage,3)
-		M3 = monster(stage,3)
-		M4 = monster(stage,3)
 
-		monsterL = [M1,M2,M3,M4]
+		monsterL = []
 
 
 
@@ -792,41 +788,67 @@ class Game():
 
 		def battle(slotL):
 			class Bullet:
-				def __init__(self, level, startPos, angle):
+				def __init__(self, level, startPos, angle, screen):
 					self.level = level
+					self.screen = screen
 					self.startPos = startPos
 					self.angle = angle
-					# hw 총알들 크기 조정해서 화면에 종류별로 다 띄우기
+					self.vx = 0 * math.cos(self.angle)
+					self.vy = 0 * math.sin(self.angle)
 
+					# hw 총알들 크기 조정해서 화면에 종류별로 다 띄우기
+					self.sizeL = {1:(43, 26), 2:(72, 23), 3:(130, 33), 4:(113, 23)}
+					self.offset = {1:(100,70,140), 2:(10,10,10), 3:(10,10,10), 4:(10,10,10)}
 					self.img = pygame.image.load('./res/bullet'+str(level)+'.png')
-					self.img = pygame.transform.scale(self.img,(43, 26))
+					self.img = pygame.transform.scale(self.img,self.sizeL[self.level])
+					
+					self.img = pygame.transform.rotate(self.img, -1*self.angle * 180 / math.pi)
+
 					self.imgRect = self.img.get_rect()
-					self.imgRect.x = startPos[0]
-					self.imgRect.y = startPos[1]
+
+
+					self.imgRect.x = startPos[0] + self.offset[self.level][0] + math.cos(self.angle)*self.offset[self.level][2]
+					self.imgRect.y = startPos[1] + self.offset[self.level][1] + math.sin(self.angle)*self.offset[self.level][2]
+
+				def move(self):
+					
+					self.imgRect.x += int(self.vx)
+					self.imgRect.y += int(self.vy)
+					self.screen.blit(self.img, self.imgRect)
+
+					
+					
 
 			pygame.draw.rect(self.screen, white, [0,0,SCREEN_WIDTH,SCREEN_HEIGHT],0)
-			B1 = Bullet(1,(100,200),4)
-			B2 = Bullet(1,(100,400),4)
-			B3 = Bullet(1,(100,600),4)
-			B4 = Bullet(1,(100,800),4)
 
 			
 			GunL = []
+			BulletL = []
 			for i in range(4):
 				if slotL[i] != 0:
 					G = Gun(slotL[i])
-					
+			
 					G.img = pygame.transform.scale(G.img,(G.size_px[slotL[i]][0]//2, G.size_px[slotL[i]][1]//2))
 					G.imgRect = G.img.get_rect()
 					G.imgRect.x = 10
 					G.imgRect.y = 200 + (200*i)
 
 					GunL.append(G)
+					print(BulletL)
+
+
 					#self.screen.blit(G.img, G.imgRect)
 
 
-			monster_cnt = 4
+
+			monster_cnt = 0
 			t = time.time()
+
+			t1 = time.time()
+
+			
+			blt_rsp = False
+
 			while True:
 				self.clock.tick(100)
 				
@@ -843,13 +865,20 @@ class Game():
 				
 				
 				pygame.draw.rect(self.screen, white, [0,0,SCREEN_WIDTH,SCREEN_HEIGHT],0)
+				
+
+				for i in range(len(BulletL)):
+					BulletL[i].move()
+
+
+
+
+
+
+
 
 
 				### 
-				self.screen.blit(B1.img, B1.imgRect)
-				self.screen.blit(B2.img, B2.imgRect)
-				self.screen.blit(B3.img, B3.imgRect)
-				self.screen.blit(B4.img, B4.imgRect)
 
 
 				text=fontSmall.render(str(30-monster_cnt) + "/30",1,(0,0,0))
@@ -875,6 +904,17 @@ class Game():
 					self.screen.blit(text, textpos)
 					return 0
 
+
+
+				if time.time() - t1 >= 0.3:
+					blt_rsp = True
+					BulletL = []
+					
+					t1 = time.time()
+
+
+
+
 				for i in range(len(GunL)):
 
 					Gx = GunL[i].imgRect.x + GunL[i].size_px[GunL[i].size][0]//2
@@ -882,12 +922,28 @@ class Game():
 
 					mspos = pygame.mouse.get_pos() 
 					angle = math.atan2(mspos[0]- Gx, mspos[1]- Gy) - math.pi/2
+
+					if blt_rsp:
+						Blt = Bullet(GunL[i].size,(GunL[i].imgRect.x, GunL[i].imgRect.y),-1*angle,self.screen)
+						BulletL.append(Blt)
+
 					angle = angle * 180 / math.pi
 					rot_gun = pygame.transform.rotate(GunL[i].img, angle)
 					rot_rect = rot_gun.get_rect(center= (Gx,Gy))
 					self.screen.blit(rot_gun, rot_rect)
 
+				if blt_rsp:
+					blt_rsp = False
+
+					
+
 					#self.screen.blit(GunL[i].img, GunL[i].imgRect)
+
+
+
+
+
+
 
 				pygame.display.update()
 
