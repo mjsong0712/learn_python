@@ -37,7 +37,7 @@ def startScreen(screen):
 
 class Game():
 	def __init__(self, screen):
-		self.money = 100
+		self.money = 10000
 		self.day = 8
 		self.stage = [1,1,1,1]
 		self.clock = pygame.time.Clock()
@@ -669,6 +669,7 @@ class Game():
 				self.stage = stage
 				self.monsterspeed = monsterspeed
 				self.monster_size = {1 : (108,133), 2 : (381,203), 3 : (861,223), 4 : (687,324)}
+				self.monster_hp = [10, 4, 5, 6]
 				self.monster = pygame.transform.scale(pygame.image.load('./res/monster'+str(stage)+'.png'), self.monster_size[stage])
 				self.monsterRect = self.monster.get_rect()
 				self.monsterRect.x = 2000
@@ -682,6 +683,7 @@ class Game():
 				self.size = size
 				self.size_px = {1 : (329,227), 2 : (381,203), 3 : (861,223), 4 : (687,324)}
 				self.rect = {1 : (200,100), 2 : (200, 400), 3 : (200, 700), 4 : (200,1000)}
+				self.offset = {1 : (-50,0), 2 : (-50, 0), 3 : (-180, 0), 4 : (-150,0)}
 				self.priceL = {1 : 10, 2 : 50, 3 : 100, 4 : 500}
 				self.img = pygame.transform.scale(pygame.image.load('./res/gun'+str(size)+'.png'), self.size_px[self.size])
 				self.imgRect = self.img.get_rect()
@@ -723,9 +725,10 @@ class Game():
 						x, y = event.pos
 						for i in range(len(N)):
 							if S[i].collidepoint(x, y):
-								self.screen.blit(slotbtn,slotbtnRect)
-								pygame.display.update()
-								return i
+								if slotL[i] == 0:
+									self.screen.blit(slotbtn,slotbtnRect)
+									pygame.display.update()
+									return i
 
 		G0 = Gun(1)
 		G1 = Gun(2)
@@ -793,12 +796,13 @@ class Game():
 					self.screen = screen
 					self.startPos = startPos
 					self.angle = angle
-					self.vx = 0 * math.cos(self.angle)
-					self.vy = 0 * math.sin(self.angle)
+					self.vx = 10 * math.cos(self.angle)
+					self.vy = 10 * math.sin(self.angle)
 
 					# hw 총알들 크기 조정해서 화면에 종류별로 다 띄우기
-					self.sizeL = {1:(43, 26), 2:(72, 23), 3:(130, 33), 4:(113, 23)}
-					self.offset = {1:(100,70,140), 2:(10,10,10), 3:(10,10,10), 4:(10,10,10)}
+					self.sizeL = {1:(43, 26), 2:(72, 23), 3:(65, 16), 4:(113, 23)}
+					self.offset = {1:(100,70,140), 2:(150,70,140), 3:(500,70,140), 4:(370,130,140)}
+					self.damage = {1:1, 2:3, 3:5, 4:10} 
 					self.img = pygame.image.load('./res/bullet'+str(level)+'.png')
 					self.img = pygame.transform.scale(self.img,self.sizeL[self.level])
 					
@@ -830,8 +834,8 @@ class Game():
 			
 					G.img = pygame.transform.scale(G.img,(G.size_px[slotL[i]][0]//2, G.size_px[slotL[i]][1]//2))
 					G.imgRect = G.img.get_rect()
-					G.imgRect.x = 10
-					G.imgRect.y = 200 + (200*i)
+					G.imgRect.x = 10 + G.offset[G.size][0]
+					G.imgRect.y = 150 + (250*i) + G.offset[G.size][1]
 
 					GunL.append(G)
 					print(BulletL)
@@ -848,6 +852,11 @@ class Game():
 
 			
 			blt_rsp = False
+
+			cleartext=fontSmall.render("Clear",1,(0,0,0))
+			cleartextpos=cleartext.get_rect()
+			cleartextpos.x = 1100
+			cleartextpos.y = 600
 
 			while True:
 				self.clock.tick(100)
@@ -889,6 +898,8 @@ class Game():
 				self.screen.blit(text, textpos)
 
 
+					
+
 
 				for i in range(len(monsterL)):
 					monsterL[i].move()
@@ -908,7 +919,6 @@ class Game():
 
 				if time.time() - t1 >= 0.3:
 					blt_rsp = True
-					BulletL = []
 					
 					t1 = time.time()
 
@@ -935,14 +945,45 @@ class Game():
 				if blt_rsp:
 					blt_rsp = False
 
-					
+
+				i = 0
+				
+				while i < len(BulletL):
+					isRemoved = False
+					# print(len(BulletL))
+					blt = BulletL[i]
+					for j in range(len(monsterL)):
+						if monsterL[j].monsterRect.x - blt.sizeL[blt.level][0] <= blt.imgRect.x <= monsterL[j].monsterRect.x + monsterL[j].monster_size[monsterL[j].stage][0]:
+							if monsterL[j].monsterRect.y - blt.sizeL[blt.level][1] <= blt.imgRect.y <= monsterL[j].monsterRect.y + monsterL[j].monster_size[monsterL[j].stage][1]:
+								BulletL.remove(blt)
+								isRemoved = True
+								monsterL[j].monster_hp[monsterL[j].stage-1] -= blt.damage[blt.level]
+
+
+					if isRemoved == False:
+						i += 1
+				j = 0
+				while j < len(monsterL):
+					if monsterL[j].monster_hp[monsterL[j].stage-1] <= 0:
+						monsterL.remove(monsterL[j])
+					else:
+						j += 1
+
+
+
+
 
 					#self.screen.blit(GunL[i].img, GunL[i].imgRect)
 
 
 
 
-
+				if monster_cnt >= 30:
+					pygame.draw.rect(self.screen, white, [0,0,SCREEN_WIDTH,SCREEN_HEIGHT],0)
+					self.screen.blit(cleartext, cleartextpos)
+					pygame.display.update()
+					time.sleep(3)
+					return 1
 
 
 				pygame.display.update()
