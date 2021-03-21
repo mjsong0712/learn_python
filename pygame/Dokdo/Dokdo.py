@@ -701,6 +701,7 @@ class Game():
 				self.stage = stage
 				self.monsterspeed = monsterspeed
 				self.monster_size = {1 : (108,133), 2 : (381,265), 3 : (294,412), 4 : (336,338), 5 : (325,396), 6 : (387,360), 7 : (337,350), 8 : (350,384), 9 : (462,341), 10 : (462,341)}
+				self.monster_hp = monster_hp[self.stage-1]
 				self.monster = pygame.transform.scale(pygame.image.load('./res/monster'+str(stage)+'.png'), self.monster_size[stage])
 				self.monsterRect = self.monster.get_rect()
 				self.monsterRect.x = 2000
@@ -1020,7 +1021,7 @@ class Game():
 									expL.append(Explosion(blt.imgRect.x, blt.imgRect.y))
 								BulletL.remove(blt)
 								isRemoved = True
-								monsterL[j].monster_hp[monsterL[j].stage-1] -= blt.damage[blt.level]
+								monsterL[j].monster_hp -= blt.damage[blt.level]
 								break
 
 
@@ -1029,7 +1030,7 @@ class Game():
 
 				j = 0
 				while j < len(monsterL):
-					if monsterL[j].monster_hp[monsterL[j].stage-1] <= 0:
+					if monsterL[j].monster_hp <= 0:
 						monsterL.remove(monsterL[j])
 					else:
 						j += 1
