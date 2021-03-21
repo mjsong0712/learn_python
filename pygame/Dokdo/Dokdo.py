@@ -11,6 +11,7 @@ SCREEN_HEIGHT = 1400
 
 white = (255, 255, 255)
 black = (0, 0, 0)
+red = (255, 20, 20)
 
 GANGCHI_SPEED = 50
 
@@ -38,7 +39,7 @@ def startScreen(screen):
 class Game():
 	def __init__(self, screen):
 		self.money = 10000
-		self.day = 8
+		self.day = 69
 		self.stage = [1,1,1,1]
 		self.clock = pygame.time.Clock()
 		self.screen = screen
@@ -92,14 +93,13 @@ class Game():
 
 
 	def saveGangchi(self):
-		gangchi_size = (300,300)
+		gangchi_size = (70,70)
+		fishsize = {1 : (70,33), 3 : (50,50), 5 : (50,50)}
 		class Fish():
 			def __init__(self, size, screen, level, gangchiRect):# size: 1,3,5
 				self.size = size
-				self.size_px = {1 : (141,67), 3 : (100,100), 5 : (100,100)}
 				self.level = level
-				
-				self.img = pygame.transform.scale(pygame.image.load('./res/fish_'+str(size)+'.png'), self.size_px[self.size])
+				self.img = pygame.transform.scale(pygame.image.load('./res/fish_'+str(size)+'.png'), fishsize[self.size])
 				self.imgRect = self.img.get_rect()
 				self.imgRect.x = random.randint(200,SCREEN_WIDTH-200)
 				self.imgRect.y = random.randint(200,SCREEN_HEIGHT-200)
@@ -111,21 +111,21 @@ class Game():
 
 				self.screen = screen
 
-				self.v_x = random.randint(-4+level*1, 4+level*1)
-				self.v_y = random.randint(-4+level*1, 4+level*1)
+				self.v_x = random.randint(-4-level*1, 4+level*1)
+				self.v_y = random.randint(-4-level*1, 4+level*1)
 
 			def move(self):
 				self.imgRect.x += self.v_x
 				self.imgRect.y += self.v_y
-				if self.imgRect.x < 0 or self.imgRect.x > SCREEN_WIDTH-self.size_px[self.size][0]:
+				if self.imgRect.x < 0 or self.imgRect.x > SCREEN_WIDTH-fishsize[self.size][0]:
 					self.v_x *= -1
-				if self.imgRect.y < 0 or self.imgRect.y > SCREEN_HEIGHT-self.size_px[self.size][1]:
+				if self.imgRect.y < 0 or self.imgRect.y > SCREEN_HEIGHT-fishsize[self.size][1]:
 					self.v_y *= -1
 				self.screen.blit(self.img, self.imgRect)
 
 			def collide(self, gangchiRect):
-				if gangchiRect.x-self.size_px[self.size][0] < self.imgRect.x < gangchiRect.x + gangchi_size[0]:
-					if gangchiRect.y-self.size_px[self.size][1] < self.imgRect.y < gangchiRect.y + gangchi_size[1]:
+				if gangchiRect.x-fishsize[self.size][0] < self.imgRect.x < gangchiRect.x + gangchi_size[0]:
+					if gangchiRect.y-fishsize[self.size][1] < self.imgRect.y < gangchiRect.y + gangchi_size[1]:
 						return True
 				return False
 
@@ -147,11 +147,11 @@ class Game():
 		gangchiRect.y = 700
 
 		
-
+		fishN = [4, 6, 7, 8, 9, 10, 10, 10, 10, 11]
 
 		fishL = []
 
-		for i in range(5):
+		for i in range(fishN[self.day//10]):
 			fishL.append(Fish(1,self.screen,self.stage[0], gangchiRect))
 			fishL.append(Fish(3,self.screen,self.stage[0], gangchiRect))
 			fishL.append(Fish(5,self.screen,self.stage[0], gangchiRect))
@@ -182,7 +182,7 @@ class Game():
 			if (keys[pygame.K_RIGHT]):
 				gangchiRect.x += GANGCHI_SPEED
 
-			timetext=fontSmall.render("%.1f sec"%(30-(time.time()-t)),1,(0,0,0))
+			timetext=fontSmall.render("%.1f sec"%(15-(time.time()-t)),1,(0,0,0))
 			timetextpos=timetext.get_rect()
 			timetextpos.x = 50
 			timetextpos.y = 90
@@ -211,21 +211,24 @@ class Game():
 				# stage clear code
 				font = pygame.font.SysFont('lato',200)
 				text = font.render("Stage Clear",True,(28,0,0))
+				pygame.draw.rect(self.screen, white, [0,0,SCREEN_WIDTH,SCREEN_HEIGHT],0)
 				self.screen.blit(text,(1000,600))
 				pygame.display.update()
-				time.sleep(1)
+				time.sleep(0.8)
 				return
 
-			if 30-(time.time()-t) <= 0:
-				text=fontSmall.render("Time Over",1,(0,0,0))
+			if 15-(time.time()-t) <= 0:
+				font = pygame.font.SysFont('lato',200)
+				text=font.render("Time Over",1,(0,0,0))
 				textpos=text.get_rect()
 				textpos.x = 800
 				textpos.y = 800
 
+				pygame.draw.rect(self.screen, white, [0,0,SCREEN_WIDTH,SCREEN_HEIGHT],0)
 				self.screen.blit(text,textpos)
 				pygame.display.update()
 
-				time.sleep(1)
+				time.sleep(0.8)
 				return
 			self.screen.blit(text,textpos)
 			self.screen.blit(gangchi,gangchiRect)
@@ -290,7 +293,7 @@ class Game():
 		isjumping = False
 
 		
-		a = 5
+		a = 3
 		#v = -20
 		r_n = 0
 		reef_L = [reef(20,self.screen)]
@@ -310,7 +313,7 @@ class Game():
 					if event.key == pygame.K_SPACE:
 						if not isjumping:
 							isjumping = True
-							v = -80
+							v = -60
 			
 			
 			if isjumping:
@@ -331,10 +334,10 @@ class Game():
 			self.screen.blit(text, textpos)
 			
 			if interval <= time.time()-t:
-				interval = random.uniform(0.5 + (3/(r_n+2)), 1 + (4/(r_n+2)))
+				interval = random.uniform(1.2 + (3/(r_n+2)), 1.7  + (4/(r_n+2)))
 				t = time.time()
 				reef_L.append(reef(20 + r_n * 1,self.screen))
-				print(time.time())
+				#print(time.time())
 				r_n += 1
 				
 
@@ -346,9 +349,10 @@ class Game():
 				if reef_L[i].collide(boatRect):
 					font = pygame.font.SysFont("notosanscjkkr",100)
 					text = font.render("GameOver",True,(28,0,0))
+					pygame.draw.rect(self.screen, white, [0,0,SCREEN_WIDTH,SCREEN_HEIGHT],0)
 					self.screen.blit(text,(1200,700))
 					pygame.display.update()
-					time.sleep(1)
+					time.sleep(0.8)
 
 					return
 
@@ -373,9 +377,9 @@ class Game():
 		if 80 <= self.money:
 			level = 5
 		mineral_info = {'stone':(2,5/level),
-						'iron':(5,10/level),
-						'gold':(10,17/level),
-						'diamond':(20,20/level)}
+						'iron':(4,10/level),
+						'gold':(7,16/level),
+						'diamond':(9,20/level)}
 		class mineral():
 			def __init__(self,itemname):
 				self.itemname = itemname
@@ -448,12 +452,12 @@ class Game():
 				if event.type == pygame.MOUSEBUTTONUP:
 					isClicking = 0
 
-			timetext=fontSmall.render("%.1f sec"%(30-(time.time()-p)),1,(0,0,0))
+			timetext=fontSmall.render("%.1f sec"%(30-(time.time()-p)),1,(255,255,255))
 			timetextpos=timetext.get_rect()
 			timetextpos.x = 50
 			timetextpos.y = 90
 
-			text=fontSmall.render("Money : "+str(self.money),1,(0,0,0))
+			text=fontSmall.render("Money : "+str(self.money),1,(255,255,255))
 			textpos=text.get_rect()
 			textpos.x = 50
 			textpos.y = 20
@@ -472,15 +476,15 @@ class Game():
 			pxRect.x, pxRect.y = mspos[0] - 170, mspos[1] - 127
 			
 			if 30-(time.time()-p) <= 0:
-				text=fontSmall.render("Time Over",1,(0,0,0))
+				text=fontBig.render("Time Over",1,(0,0,0))
 				textpos=text.get_rect()
 				textpos.x = 800
-				textpos.y = 800
-
+				textpos.y = 500
+				pygame.draw.rect(self.screen, white, [0,0,SCREEN_WIDTH,SCREEN_HEIGHT],0)
 				self.screen.blit(text,textpos)
 				pygame.display.update()
 
-				time.sleep(1)
+				time.sleep(0.8)
 				return
 
 			def calcAngle(angle, maxangle):
@@ -511,6 +515,8 @@ class Game():
 		
 
 	def clean(self):
+
+
 		class Trash():
 			def __init__(self):
 				imgL = ['pet.png','pet2.png','paper.png']
@@ -521,11 +527,20 @@ class Game():
 				self.imgRect = self.img.get_rect()
 				self.imgRect.x = random.randint(0,2400)
 				self.imgRect.y = random.randint(0,1200)
+
+				while 2050<=self.imgRect.x<=2400 and 850<=self.imgRect.y<=1200:
+					self.imgRect.x = random.randint(0,2400)
+					self.imgRect.y = random.randint(0,1200)
+				
+
 				self.isFalling = 0
+				self.isSelected = False
 				self.v = 5
 
 			def collide(self,x,y):
 				return self.imgRect.collidepoint(x,y)
+		
+		
 
 
 		background = pygame.image.load('./res/sea_background.png')
@@ -545,9 +560,14 @@ class Game():
 		trashbinbRect = trashbinb.get_rect()
 		trashbinbRect.x = 2200
 		trashbinbRect.y = 1000
+
+
+
+
+
 		
 		trashL = []
-		for i in range(3+int(self.stage[2]*1.5)):
+		for i in range(15+int(self.stage[2]*1.5)):
 			trashL.append(Trash())
 
 		
@@ -569,12 +589,13 @@ class Game():
 					x, y = event.pos
 					for i in range(len(trashL)):
 						if trashL[i].collide(x, y):
-							tx = trashL[i].imgRect.x
-							ty = trashL[i].imgRect.y
-							dx = tx - x
-							dy = ty - y
-							n = i
-							break
+							if not trashL[i].isSelected:
+								tx = trashL[i].imgRect.x
+								ty = trashL[i].imgRect.y
+								dx = tx - x
+								dy = ty - y
+								n = i
+								break
 
 
 				if event.type == pygame.MOUSEBUTTONUP and 0 <= n:
@@ -585,7 +606,7 @@ class Game():
 					trashbinRect.y - 500 <= trashL[n].imgRect.y:
 
 						trashL[n].isFalling = 1
-
+						trashL[n].isSelected = True
 						print("o")
 					else:
 						trashL[n].imgRect.x = tx
@@ -604,6 +625,11 @@ class Game():
 			timetextpos=timetext.get_rect()
 			timetextpos.x = 50
 			timetextpos.y = 20
+
+			text=fontSmall.render("Money : "+str(self.money),1,(0,0,0))
+			textpos=text.get_rect()
+			textpos.x = 50
+			textpos.y = 50
 			
 			if 0 <= n:
 				mspos = pygame.mouse.get_pos()
@@ -614,6 +640,7 @@ class Game():
 			self.screen.blit(background,backgroundRect)
 			self.screen.blit(timetext, timetextpos)
 			self.screen.blit(trashbinb,trashbinbRect)
+			self.screen.blit(text, textpos)
 			
 			for i in range(len(trashL)):
 				if trashL[i].isFalling == 1:
@@ -637,39 +664,43 @@ class Game():
 					u = 0
 					break
 			if u == 1 :
-				text=fontSmall.render("Clear",1,(0,0,0))
+				font = pygame.font.SysFont('lato',200)
+				text=font.render("Clear",1,(0,0,0))
 				textpos=text.get_rect()
-				textpos.x = 100
-				textpos.y = 100
+				textpos.x = 1200
+				textpos.y = 600
 
+				pygame.draw.rect(self.screen, white, [0,0,SCREEN_WIDTH,SCREEN_HEIGHT],0)
 				self.screen.blit(text,textpos)
 				pygame.display.update()
 
-				time.sleep(1)
+				time.sleep(0.8)
 				return
 
 			if 30-(time.time()-t) <= 0:
-				text=fontSmall.render("Time Over",1,(0,0,0))
+				font = pygame.font.SysFont('lato',200)
+				text=font.render("Time Over",1,(0,0,0))
 				textpos=text.get_rect()
-				textpos.x = 800
-				textpos.y = 800
+				textpos.x = 1200
+				textpos.y = 600
+
 
 				self.screen.blit(text,textpos)
 				pygame.display.update()
 
-				time.sleep(1)
+				time.sleep(0.8)
 				return
 			pygame.display.update()
 
 			
 	def bossStage(self):
 		stage = int(self.day / 10)
+		monster_hp = [10, 20, 25, 35, 40, 50, 55, 60, 100, 2000]
 		class monster():
 			def __init__(self,stage,monsterspeed):
 				self.stage = stage
 				self.monsterspeed = monsterspeed
-				self.monster_size = {1 : (108,133), 2 : (381,203), 3 : (861,223), 4 : (687,324)}
-				self.monster_hp = [10, 4, 5, 6]
+				self.monster_size = {1 : (108,133), 2 : (381,265), 3 : (294,412), 4 : (336,338), 5 : (325,396), 6 : (387,360), 7 : (337,350), 8 : (350,384), 9 : (462,341), 10 : (462,341)}
 				self.monster = pygame.transform.scale(pygame.image.load('./res/monster'+str(stage)+'.png'), self.monster_size[stage])
 				self.monsterRect = self.monster.get_rect()
 				self.monsterRect.x = 2000
@@ -712,6 +743,11 @@ class Game():
 				slotbtnRect.y = 600
 				self.screen.blit(slotbtn,slotbtnRect)
 				S.append(slotbtnRect)
+
+			
+			
+
+
 			pygame.display.update()
 			print("while in")
 			while True:
@@ -790,6 +826,19 @@ class Game():
 		
 
 		def battle(slotL):
+			class Explosion:
+				def __init__(self, x, y):
+					self.timer = time.time()
+
+					self.img = pygame.image.load('./res/gun4explode.png')
+					self.img = pygame.transform.scale(self.img, (123,133))
+
+					self.imgRect = self.img.get_rect()
+					self.imgRect.x = x + 40
+					self.imgRect.y = y - 40
+
+
+
 			class Bullet:
 				def __init__(self, level, startPos, angle, screen):
 					self.level = level
@@ -828,6 +877,7 @@ class Game():
 			
 			GunL = []
 			BulletL = []
+			expL = []
 			for i in range(4):
 				if slotL[i] != 0:
 					G = Gun(slotL[i])
@@ -845,7 +895,12 @@ class Game():
 
 
 
-			monster_cnt = 0
+			killed_cnt = 0
+			spawned_cnt = 0
+			monstersL = [30, 35, 50, 40, 40, 30, 20, 20, 5, 1]
+			speedL = 	[3,  3,  3,  4,  5,  3,  2,  4,  2, 1]
+			monsters = monstersL[int(self.day/10)-1]
+
 			t = time.time()
 
 			t1 = time.time()
@@ -853,11 +908,12 @@ class Game():
 			
 			blt_rsp = False
 
-			cleartext=fontSmall.render("Clear",1,(0,0,0))
+			cleartext=fontBig.render("Clear",1,(0,0,0))
 			cleartextpos=cleartext.get_rect()
 			cleartextpos.x = 1100
 			cleartextpos.y = 600
 
+			
 			while True:
 				self.clock.tick(100)
 				
@@ -868,29 +924,22 @@ class Game():
 						if event.key == pygame.K_q:
 							sys.exit()
 
-
-				
-				
-				
 				
 				pygame.draw.rect(self.screen, white, [0,0,SCREEN_WIDTH,SCREEN_HEIGHT],0)
 				
+				if self.day == 100:
+					pygame.draw.rect(self.screen, black, [200, 50, 2300, 50], 2)
+					pygame.draw.rect(self.screen, red, [203, 53, 2295, 45])
 
 				for i in range(len(BulletL)):
 					BulletL[i].move()
 
 
 
-
-
-
-
-
-
 				### 
 
 
-				text=fontSmall.render(str(30-monster_cnt) + "/30",1,(0,0,0))
+				text=fontSmall.render(str(killed_cnt) + "/"+str(monsters),1,(0,0,0))
 				textpos=text.get_rect()
 				textpos.x = 50
 				textpos.y = 20
@@ -904,15 +953,27 @@ class Game():
 				for i in range(len(monsterL)):
 					monsterL[i].move()
 					self.screen.blit(monsterL[i].monster, monsterL[i].monsterRect)
+
+
+				if expL and time.time() - expL[0].timer > 0.15:
+					expL = expL[1:]
+
+				for i in range(len(expL)):
+					self.screen.blit(expL[i].img, expL[i].imgRect)
 				
+
 				if monsterL and monsterL[0].monsterRect.x <= 0:
 					monsterL.remove(monsterL[0])
-					text=fontSmall.render("game over",1,(0,0,0))
+					font = pygame.font.SysFont('lato',200)
+					text=font.render("Game Over",1,(0,0,0))
 					textpos=text.get_rect()
-					textpos.x = 50
-					textpos.y = 20
+					textpos.x = 1000
+					textpos.y = 600
 
+					pygame.draw.rect(self.screen, white, [0,0,SCREEN_WIDTH,SCREEN_HEIGHT],0)
 					self.screen.blit(text, textpos)
+					pygame.display.update()
+					time.sleep(0.8)
 					return 0
 
 
@@ -955,13 +1016,17 @@ class Game():
 					for j in range(len(monsterL)):
 						if monsterL[j].monsterRect.x - blt.sizeL[blt.level][0] <= blt.imgRect.x <= monsterL[j].monsterRect.x + monsterL[j].monster_size[monsterL[j].stage][0]:
 							if monsterL[j].monsterRect.y - blt.sizeL[blt.level][1] <= blt.imgRect.y <= monsterL[j].monsterRect.y + monsterL[j].monster_size[monsterL[j].stage][1]:
+								if blt.level == 4:
+									expL.append(Explosion(blt.imgRect.x, blt.imgRect.y))
 								BulletL.remove(blt)
 								isRemoved = True
 								monsterL[j].monster_hp[monsterL[j].stage-1] -= blt.damage[blt.level]
+								break
 
 
 					if isRemoved == False:
 						i += 1
+
 				j = 0
 				while j < len(monsterL):
 					if monsterL[j].monster_hp[monsterL[j].stage-1] <= 0:
@@ -969,20 +1034,13 @@ class Game():
 					else:
 						j += 1
 
-
-
-
-
 					#self.screen.blit(GunL[i].img, GunL[i].imgRect)
 
-
-
-
-				if monster_cnt >= 30:
+				if killed_cnt >= monsters: # fix
 					pygame.draw.rect(self.screen, white, [0,0,SCREEN_WIDTH,SCREEN_HEIGHT],0)
 					self.screen.blit(cleartext, cleartextpos)
 					pygame.display.update()
-					time.sleep(3)
+					time.sleep(0.8)
 					return 1
 
 
@@ -990,9 +1048,10 @@ class Game():
 
 
 				if time.time()-t >= 1:
-					monsterL.append(monster(stage,3))
-					monster_cnt += 1
-					t = time.time()
+					if spawned_cnt < monsters:
+						monsterL.append(monster(stage,speedL[stage-1]))
+						spawned_cnt += 1
+						t = time.time()
 					
 
 				
@@ -1018,15 +1077,13 @@ class Game():
 					for i in range(len(L)):
 						if L[i].pricebtnRect.collidepoint(x, y):
 							if self.money >= L[i].priceL[L[i].size]:
-								self.money -= L[i].priceL[L[i].size]
-								print("slotSelect start")
-								selected = slotSelect(slotL)
-								print (selected)
-								print (selected+1)
-								slotL[selected] = i+1
-								print (slotL)
-								drawShop(slotL)
-								print("slotSelect end")
+								if 0 in slotL:
+									self.money -= L[i].priceL[L[i].size]
+									selected = slotSelect(slotL)
+									slotL[selected] = i+1
+								
+
+									drawShop(slotL)
 							else:
 								text=fontSmall.render("Not available for purchase",1,(0,0,0))
 								textpos=text.get_rect()
@@ -1064,9 +1121,9 @@ class Game():
 			self.clock.tick(10)
 			for event in pygame.event.get():
 				if event.type == pygame.QUIT:
-					return
+					sys.exit()
 				if event.type == pygame.KEYDOWN:
-					if event.key == pygame.K_q:
+					if event.key == pygame.K_r:
 						return
 				if event.type == pygame.MOUSEBUTTONDOWN:
 					x, y = event.pos
@@ -1155,3 +1212,4 @@ while True:
 
 
 pygame.quit()
+pygame.display.update()
