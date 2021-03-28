@@ -5,7 +5,8 @@ import time
 import math
 
 SCREEN_WIDTH = 2560
-SCREEN_HEIGHT = 1400
+SCREEN_HEIGHT = 1440
+
 
 
 
@@ -39,7 +40,7 @@ def startScreen(screen):
 class Game():
 	def __init__(self, screen):
 		self.money = 10000
-		self.day = 69
+		self.day = 99
 		self.stage = [1,1,1,1]
 		self.clock = pygame.time.Clock()
 		self.screen = screen
@@ -692,10 +693,12 @@ class Game():
 				return
 			pygame.display.update()
 
-			
+	
 	def bossStage(self):
 		stage = int(self.day / 10)
-		monster_hp = [10, 20, 25, 35, 40, 50, 55, 60, 100, 2000]
+		boss_hp = 2000
+		monster_hp = [10, 20, 25, 35, 40, 50, 55, 60, 100, boss_hp]
+		
 		class monster():
 			def __init__(self,stage,monsterspeed):
 				self.stage = stage
@@ -929,8 +932,8 @@ class Game():
 				pygame.draw.rect(self.screen, white, [0,0,SCREEN_WIDTH,SCREEN_HEIGHT],0)
 				
 				if self.day == 100:
-					pygame.draw.rect(self.screen, black, [200, 50, 2300, 50], 2)
-					pygame.draw.rect(self.screen, red, [203, 53, 2295, 45])
+					pygame.draw.rect(self.screen, black, [200, 50+200, 2300, 50], 2)
+					pygame.draw.rect(self.screen, red, [203, 53+200, 2295-((boss_hp-monsterL[0].monster_hp)*(2295/boss_hp)), 45])
 
 				for i in range(len(BulletL)):
 					BulletL[i].move()
