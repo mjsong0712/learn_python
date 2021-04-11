@@ -7,8 +7,7 @@ import math
 SCREEN_WIDTH = 2560
 SCREEN_HEIGHT = 1440
 
-
-
+HP_BAR_WIDTH = int(2560 * 0.9)
 
 white = (255, 255, 255)
 black = (0, 0, 0)
@@ -844,6 +843,7 @@ class Game():
 
 
 			class Bullet:
+
 				def __init__(self, level, startPos, angle, screen):
 					self.level = level
 					self.screen = screen
@@ -892,7 +892,7 @@ class Game():
 					G.imgRect.y = 150 + (250*i) + G.offset[G.size][1]
 
 					GunL.append(G)
-					print(BulletL)
+					# print(BulletL)
 
 
 					#self.screen.blit(G.img, G.imgRect)
@@ -901,10 +901,12 @@ class Game():
 
 			killed_cnt = 0
 			spawned_cnt = 0
-			monstersL = [30, 35, 50, 40, 40, 30, 20, 20, 5, 1]
+			monstersL = [30, 35, 50, 40, 40, 30, 20, 20, 5, 0]
 			speedL = 	[3,  3,  3,  4,  5,  3,  2,  4,  2, 1]
+			
 			monsters = monstersL[int(self.day/10)-1]
 
+			bossmob = monster(10, 1)
 			t = time.time()
 
 			t1 = time.time()
@@ -917,7 +919,9 @@ class Game():
 			cleartextpos.x = 1100
 			cleartextpos.y = 600
 
-			
+			monsterSpawningHp = [1400, 1100, 800, 500, 200, -100]
+			spawningMonsterLevel = [1,3,5,7,9]
+			mshIndex = 0
 			while True:
 				self.clock.tick(100)
 				
@@ -927,33 +931,36 @@ class Game():
 					if event.type == pygame.KEYDOWN:
 						if event.key == pygame.K_q:
 							sys.exit()
-
-				
+	
 				pygame.draw.rect(self.screen, white, [0,0,SCREEN_WIDTH,SCREEN_HEIGHT],0)
-				
-				if self.day == 100:
-					pygame.draw.rect(self.screen, black, [200, 50+200, 2300, 50], 2)
-					pygame.draw.rect(self.screen, red, [203, 53+200, 2295-((boss_hp-monsterL[0].monster_hp)*(2295/boss_hp)), 45])
 
 				for i in range(len(BulletL)):
 					BulletL[i].move()
 
+				if self.day != 100:
+					text=fontSmall.render(str(killed_cnt) + "/"+str(monsters),1,(0,0,0))
+					textpos=text.get_rect()
+					textpos.x = 50
+					textpos.y = 20
+					self.screen.blit(text, textpos)
+				else:
+					text=fontSmall.render("Boss Stage",1,(0,0,0))
+					textpos=text.get_rect()
+					textpos.x = 30
+					textpos.y = 50
+					self.screen.blit(text, textpos)
+
+				if self.day == 100 and bossmob.monster_hp <= 0:
+					bossmob.monsterspeed = 0
+					bossmob.monsterRect.x = 100
+					bossmob.monsterRect.y = -1000
 
 
-				### 
 
-
-				text=fontSmall.render(str(killed_cnt) + "/"+str(monsters),1,(0,0,0))
-				textpos=text.get_rect()
-				textpos.x = 50
-				textpos.y = 20
-
-				self.screen.blit(text, textpos)
-
-
-					
-
-
+				if self.day == 100:	
+					bossmob.move()
+					self.screen.blit(bossmob.monster, bossmob.monsterRect)
+				
 				for i in range(len(monsterL)):
 					monsterL[i].move()
 					self.screen.blit(monsterL[i].monster, monsterL[i].monsterRect)
@@ -966,8 +973,8 @@ class Game():
 					self.screen.blit(expL[i].img, expL[i].imgRect)
 				
 
-				if monsterL and monsterL[0].monsterRect.x <= 0:
-					monsterL.remove(monsterL[0])
+				if (self.day == 100 and bossmob.monsterRect.x <= 0) or (monsterL and monsterL[0].monsterRect.x <= 0):
+					# monsterL.remove(monsterL[0])
 					font = pygame.font.SysFont('lato',200)
 					text=font.render("Game Over",1,(0,0,0))
 					textpos=text.get_rect()
@@ -979,6 +986,7 @@ class Game():
 					pygame.display.update()
 					time.sleep(0.8)
 					return 0
+
 
 
 
@@ -1014,17 +1022,22 @@ class Game():
 				i = 0
 				
 				while i < len(BulletL):
+					if self.day == 100:
+						tmp = monsterL[:] + [bossmob]
+					else:
+						tmp = monsterL
 					isRemoved = False
 					# print(len(BulletL))
 					blt = BulletL[i]
-					for j in range(len(monsterL)):
-						if monsterL[j].monsterRect.x - blt.sizeL[blt.level][0] <= blt.imgRect.x <= monsterL[j].monsterRect.x + monsterL[j].monster_size[monsterL[j].stage][0]:
-							if monsterL[j].monsterRect.y - blt.sizeL[blt.level][1] <= blt.imgRect.y <= monsterL[j].monsterRect.y + monsterL[j].monster_size[monsterL[j].stage][1]:
+					for j in range(len(tmp)):
+						if tmp[j].monsterRect.x - blt.sizeL[blt.level][0] <= blt.imgRect.x <= tmp[j].monsterRect.x + tmp[j].monster_size[tmp[j].stage][0]:
+							if tmp[j].monsterRect.y - blt.sizeL[blt.level][1] <= blt.imgRect.y <= tmp[j].monsterRect.y + tmp[j].monster_size[tmp[j].stage][1]:
 								if blt.level == 4:
 									expL.append(Explosion(blt.imgRect.x, blt.imgRect.y))
 								BulletL.remove(blt)
 								isRemoved = True
-								monsterL[j].monster_hp -= blt.damage[blt.level]
+								tmp[j].monster_hp -= blt.damage[blt.level]
+
 								break
 
 
@@ -1040,14 +1053,25 @@ class Game():
 
 					#self.screen.blit(GunL[i].img, GunL[i].imgRect)
 
-				if killed_cnt >= monsters: # fix
+				if (self.day != 100 and killed_cnt >= monsters) or (self.day == 100 and monsterL == [] and bossmob.monster_hp <= 0): # fix
 					pygame.draw.rect(self.screen, white, [0,0,SCREEN_WIDTH,SCREEN_HEIGHT],0)
 					self.screen.blit(cleartext, cleartextpos)
 					pygame.display.update()
 					time.sleep(0.8)
 					return 1
 
+				if self.day == 100:
+					pygame.draw.rect(self.screen, black, [200, 50, HP_BAR_WIDTH+5, 50], 2)
+					if 0 < HP_BAR_WIDTH-int((boss_hp-bossmob.monster_hp)*(HP_BAR_WIDTH/boss_hp)):
+						pygame.draw.rect(self.screen, red, [203, 53, HP_BAR_WIDTH-int((boss_hp-bossmob.monster_hp)*(HP_BAR_WIDTH/boss_hp)), 45])
+				
 
+				
+
+				if bossmob.monster_hp < monsterSpawningHp[mshIndex]:
+					for i in range(5):
+						monsterL.append(monster(spawningMonsterLevel[mshIndex],speedL[spawningMonsterLevel[mshIndex]-1]))
+					mshIndex += 1
 				pygame.display.update()
 
 
@@ -1058,10 +1082,12 @@ class Game():
 						t = time.time()
 					
 
+
 				
 
-			############### hw!!!!!!!!!!!!!!!!!!!!!!!!!
-			# 몬스터 나올 때마다 25/30 -> 24/30 이런 식으로 글씨 띄워주기
+			############### 다음 시간
+			# 화면 밖 총알
+			# 뭐 하나 더 있었는데 뭐더라
 
 
 
