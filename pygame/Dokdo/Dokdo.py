@@ -7,7 +7,7 @@ import math
 SCREEN_WIDTH = 2560
 SCREEN_HEIGHT = 1440
 
-HP_BAR_WIDTH = int(2560 * 0.9)
+HP_BAR_WIDTH = int(SCREEN_WIDTH * 0.9)
 
 white = (255, 255, 255)
 black = (0, 0, 0)
@@ -38,8 +38,8 @@ def startScreen(screen):
 
 class Game():
 	def __init__(self, screen):
-		self.money = 10000
-		self.day = 99
+		self.money = 0
+		self.day = 1
 		self.stage = [1,1,1,1]
 		self.clock = pygame.time.Clock()
 		self.screen = screen
@@ -72,7 +72,12 @@ class Game():
 
 	def drawMain(self):
 		background = pygame.Rect((0,0), (SCREEN_WIDTH, SCREEN_HEIGHT))
-		pygame.draw.rect(self.screen, white, background)
+		sky_back = pygame.image.load('./res/island.png')
+		sky_back = pygame.transform.scale(sky_back,(SCREEN_WIDTH,SCREEN_HEIGHT))
+		sky_backRect = sky_back.get_rect()
+		sky_backRect.x = 0
+		sky_backRect.y = 0
+		self.screen.blit(sky_back,sky_backRect)
 
 		text=fontSmall.render("Money : "+str(self.money),1,(0,0,0))
 		textpos=text.get_rect()
@@ -695,7 +700,7 @@ class Game():
 	
 	def bossStage(self):
 		stage = int(self.day / 10)
-		boss_hp = 2000
+		boss_hp = 10000
 		monster_hp = [10, 20, 25, 35, 40, 50, 55, 60, 100, boss_hp]
 		
 		class monster():
@@ -707,7 +712,10 @@ class Game():
 				self.monster = pygame.transform.scale(pygame.image.load('./res/monster'+str(stage)+'.png'), self.monster_size[stage])
 				self.monsterRect = self.monster.get_rect()
 				self.monsterRect.x = 2000
-				self.monsterRect.y = random.randint(50, 1100)
+				if stage == 10 :
+					self.monsterRect.y = 500
+				else:
+					self.monsterRect.y = random.randint(50, 1100)
 
 			def move(self):
 				self.monsterRect.x -= self.monsterspeed
@@ -919,9 +927,13 @@ class Game():
 			cleartextpos.x = 1100
 			cleartextpos.y = 600
 
-			monsterSpawningHp = [1400, 1100, 800, 500, 200, -100]
+			monsterSpawningHp = [8000, 6000, 4000, 2000, 1000, -100]
 			spawningMonsterLevel = [1,3,5,7,9]
 			mshIndex = 0
+			
+			if self.day == 100:
+				boss_x = 2000
+				boss_y = 500
 			while True:
 				self.clock.tick(100)
 				
@@ -958,7 +970,8 @@ class Game():
 
 
 				if self.day == 100:	
-					bossmob.move()
+					boss_x -= 0.1
+					bossmob.monsterRect.x = int(boss_x)
 					self.screen.blit(bossmob.monster, bossmob.monsterRect)
 				
 				for i in range(len(monsterL)):
@@ -988,6 +1001,12 @@ class Game():
 					return 0
 
 
+				if BulletL:
+					if not (-200 < BulletL[0].imgRect.x < SCREEN_WIDTH + 200 and -200 < BulletL[0].imgRect.y < SCREEN_HEIGHT + 200):
+						print("AAA")
+						BulletL.remove(BulletL[0])
+
+				print(len(BulletL))
 
 
 				if time.time() - t1 >= 0.3:
@@ -1009,6 +1028,7 @@ class Game():
 					if blt_rsp:
 						Blt = Bullet(GunL[i].size,(GunL[i].imgRect.x, GunL[i].imgRect.y),-1*angle,self.screen)
 						BulletL.append(Blt)
+
 
 					angle = angle * 180 / math.pi
 					rot_gun = pygame.transform.rotate(GunL[i].img, angle)
@@ -1048,16 +1068,18 @@ class Game():
 				while j < len(monsterL):
 					if monsterL[j].monster_hp <= 0:
 						monsterL.remove(monsterL[j])
+						killed_cnt += 1
 					else:
 						j += 1
 
 					#self.screen.blit(GunL[i].img, GunL[i].imgRect)
 
 				if (self.day != 100 and killed_cnt >= monsters) or (self.day == 100 and monsterL == [] and bossmob.monster_hp <= 0): # fix
-					pygame.draw.rect(self.screen, white, [0,0,SCREEN_WIDTH,SCREEN_HEIGHT],0)
-					self.screen.blit(cleartext, cleartextpos)
-					pygame.display.update()
-					time.sleep(0.8)
+					if (self.day != 100):
+						pygame.draw.rect(self.screen, white, [0,0,SCREEN_WIDTH,SCREEN_HEIGHT],0)
+						self.screen.blit(cleartext, cleartextpos)
+						pygame.display.update()
+						time.sleep(0.8)
 					return 1
 
 				if self.day == 100:
@@ -1072,7 +1094,7 @@ class Game():
 					for i in range(5):
 						monsterL.append(monster(spawningMonsterLevel[mshIndex],speedL[spawningMonsterLevel[mshIndex]-1]))
 					mshIndex += 1
-				pygame.display.update()
+				
 
 
 				if time.time()-t >= 1:
@@ -1082,12 +1104,13 @@ class Game():
 						t = time.time()
 					
 
-
+				pygame.display.update()
 				
 
 			############### 다음 시간
 			# 화면 밖 총알
 			# 뭐 하나 더 있었는데 뭐더라
+
 
 
 
@@ -1147,6 +1170,8 @@ class Game():
 					return 0
 				else:
 					self.day += 1
+			if self.day == 101:
+				return 1
 			#print("bb")
 			self.clock.tick(10)
 			for event in pygame.event.get():
@@ -1225,10 +1250,10 @@ while True:
 	if result == 1:
 		pygame.draw.rect(screen, white, [0,0,SCREEN_WIDTH,SCREEN_HEIGHT],0)
 
-		text=fontSmall.render("Game clear",1,(0,0,0))
+		text=fontBig.render("Game clear",1,(0,0,0))
 		textpos=text.get_rect()
-		textpos.x = 700
-		textpos.y = 20
+		textpos.x = 1000
+		textpos.y = 400
 
 		screen.blit(text, textpos)
 
@@ -1236,10 +1261,4 @@ while True:
 		time.sleep(3)
 		break
 
-
-
-
-
-
 pygame.quit()
-pygame.display.update()
