@@ -17,8 +17,8 @@ GANGCHI_SPEED = 50
 
 pygame.font.init()
 
-fontSmall=pygame.font.Font(None,40)
-fontBig=pygame.font.Font(None,200)
+fontSmall = pygame.font.SysFont('Sans',40)
+fontBig = pygame.font.SysFont('Sans',200)
 
 def startScreen(screen):
 	background = pygame.Rect((0,0), (SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -214,7 +214,7 @@ class Game():
 
 			if len(fishL) == 0:
 				# stage clear code
-				font = pygame.font.SysFont('lato',200)
+				font = pygame.font.SysFont('Sans',200)
 				text = font.render("Stage Clear",True,(28,0,0))
 				pygame.draw.rect(self.screen, white, [0,0,SCREEN_WIDTH,SCREEN_HEIGHT],0)
 				self.screen.blit(text,(1000,600))
@@ -223,7 +223,7 @@ class Game():
 				return
 
 			if 15-(time.time()-t) <= 0:
-				font = pygame.font.SysFont('lato',200)
+				font = pygame.font.SysFont('Sans',200)
 				text=font.render("Time Over",1,(0,0,0))
 				textpos=text.get_rect()
 				textpos.x = 800
@@ -352,7 +352,7 @@ class Game():
 			for i in range(len(reef_L)):
 				reef_L[i].move()
 				if reef_L[i].collide(boatRect):
-					font = pygame.font.SysFont("notosanscjkkr",100)
+					font = pygame.font.SysFont("Sans",100)
 					text = font.render("GameOver",True,(28,0,0))
 					pygame.draw.rect(self.screen, white, [0,0,SCREEN_WIDTH,SCREEN_HEIGHT],0)
 					self.screen.blit(text,(1200,700))
@@ -669,7 +669,7 @@ class Game():
 					u = 0
 					break
 			if u == 1 :
-				font = pygame.font.SysFont('lato',200)
+				font = pygame.font.SysFont('Sans',200)
 				text=font.render("Clear",1,(0,0,0))
 				textpos=text.get_rect()
 				textpos.x = 1200
@@ -683,7 +683,7 @@ class Game():
 				return
 
 			if 30-(time.time()-t) <= 0:
-				font = pygame.font.SysFont('lato',200)
+				font = pygame.font.SysFont('Sans',200)
 				text=font.render("Time Over",1,(0,0,0))
 				textpos=text.get_rect()
 				textpos.x = 1200
@@ -988,7 +988,7 @@ class Game():
 
 				if (self.day == 100 and bossmob.monsterRect.x <= 0) or (monsterL and monsterL[0].monsterRect.x <= 0):
 					# monsterL.remove(monsterL[0])
-					font = pygame.font.SysFont('lato',200)
+					font = pygame.font.SysFont('Sans',200)
 					text=font.render("Game Over",1,(0,0,0))
 					textpos=text.get_rect()
 					textpos.x = 1000
