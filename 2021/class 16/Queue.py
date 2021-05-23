@@ -6,8 +6,11 @@ class Queue:
 		self.L = [0 for i in range(MAX_L)]
 		self.front = 0
 		self.back = -1
-	def push(self):
-		
+	def push(self, a):
+		self.L.append(a)
+		self.back += 1
+	def pop(self):
+		self.L
 
 
 	
