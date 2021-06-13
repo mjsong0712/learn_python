@@ -1,4 +1,4 @@
-MAX_L = 500000
+MAX_L = 1001
 
 # push, pop, empty, size, front, back
 
@@ -47,17 +47,13 @@ class Queue:
 		return self.L[self.back]
 
 
+N, K = input().split()
+N, K = int(N), int(K)
+ans = []
 Q = Queue()
-
-N = int(input())
 
 for i in range(N):
 	Q.push(i+1)
 
-
-while Q.size() > 1:
-	Q.pop()
-	a = Q.pop()
-	Q.push(a)
-
-print(Q.pop())
+while not Q.empty():
+	
