@@ -1,4 +1,4 @@
-MAX_L = 8
+MAX_L = 200
 
 # push, pop, empty, size, front, back
 
@@ -77,7 +77,6 @@ for i in range(tc):
 
 		while Q.size() >= 2:
 			L.append(Q.check_print())
-			print(L)
 			
 
 		L.append(Q.pop())
@@ -85,4 +84,4 @@ for i in range(tc):
 		
 		for j in range(len(L)):
 			if L[j][1] == M:
-				print(i+1)
+				print(j+1)
