@@ -11,9 +11,9 @@ def CP(L):
 				isSame = False
 	if isSame:
 		if L[0][0] == '1':
-			return [0,1]
+			return 'b'
 		if L[0][0] == '0':
-			return [1,0]
+			return 'w'
 
 
 	for i in range(len(L)//2):
@@ -23,15 +23,23 @@ def CP(L):
 		L3.append(L[i][:len(L)//2])
 		L4.append(L[i][len(L)//2:])
 
+	CL1 = CP(L1)
+	CL2 = CP(L2)
+	CL3 = CP(L3)
+	CL4 = CP(L4)
 
-	for i in range(len(CP(L1))):
-		Y.append(CP(L1)[i])
-	for i in range(len(CP(L2))):
-		Y.append(CP(L2)[i])
-	for i in range(len(CP(L3))):
-		Y.append(CP(L3)[i])
-	for i in range(len(CP(L4))):
-		Y.append(CP(L4)[i])
+	for i in range(len(CL1)):
+		Y.append(CL1[i])
+
+	for i in range(len(CL2)):
+		Y.append(CL2[i])
+	
+	for i in range(len(CL3)):
+		Y.append(CL3[i])
+	
+	for i in range(len(CL4)):
+		Y.append(CL4[i])
+	
 	return Y
 
 
@@ -50,10 +58,17 @@ for i in range(n):
 	L.append(K)
 AL = CP(L)
 
-for i in range(0, len(AL), 2):
-	if AL[i] == 0:
+
+# for i in range(0, len(AL), 2):
+# 	if AL[i] == 0:
+# 		b +=1
+# 	if AL[i] == 1:
+# 		w +=1
+
+for i in range(len(AL)):
+	if AL[i] == 'b':
 		b +=1
-	if AL[i] == 1:
+	if AL[i] == 'w':
 		w +=1
 
 print(w)
