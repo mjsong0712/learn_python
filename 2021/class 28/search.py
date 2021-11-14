@@ -13,6 +13,8 @@ def search(L,X,Y,n):
 			return search(L,(X+Y)//2+1,Y,n)
 
 
+			
+
 N = int(input())
 A = input().split(' ')
 M = int(input())
