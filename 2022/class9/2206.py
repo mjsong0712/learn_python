@@ -44,31 +44,53 @@ for i in range(N):
     k = input()
     L.append(k)
 
-searched = []
 Q = Queue(2000000)
 Q.push(((0, 0), 1, False))
+
+searched = [[False for i in range(M)] for i in range(N)]
+
+ans = -1
 
 while not Q.isEmpty():
     P, d, b = Q.pop()
 
-    if P in searched:
-        continue
+    if P[0] == N - 1 and P[1] == M - 1:
+        ans = d
+        break
 
     if b:
-        if P[0] + 1 < N and L[P[0] + 1][P[1]] == 0:
-            Q.push((P[0] + 1, P[1]), d + 1, b)
-        if P[0] + 1 < M and L[P[0]][P[1] + 1] == 0:
-            Q.push((P[0], P[1] + 1), d + 1, b)
-        if P[0] - 1 >= 0 and L[P[0] - 1][P[1]] == 0:
-            Q.push((P[0] - 1, P[1]), d + 1, b)
-        if P[0] - 1 >= 0 and L[P[0]][P[1] - 1] == 0:
-            Q.push((P[0], P[1] - 1), d + 1, b)
+        indices = []
+        if P[0] + 1 < N and L[P[0] + 1][P[1]] == "0" and not searched[P[0] + 1][P[1]]:
+            indices.append((P[0] + 1, P[1]))
+        if P[1] + 1 < M and L[P[0]][P[1] + 1] == "0" and not searched[P[0]][P[1] + 1]:
+            indices.append((P[0], P[1] + 1))
+        if P[0] - 1 >= 0 and L[P[0] - 1][P[1]] == "0" and not searched[P[0] - 1][P[1]]:
+            indices.append((P[0] - 1, P[1]))
+        if P[1] - 1 >= 0 and L[P[0]][P[1] - 1] == "0" and not searched[P[0]][P[1] - 1]:
+            indices.append((P[0], P[1] - 1))
+
+        for index in indices:
+            searched[index[0]][index[1]] = True
+            Q.push((index, d + 1, b))
+
     else:
-        if P[0] + 1 < N:
-            Q.push((P[0] + 1, P[1]), d + 1, L[P[0] + 1][P[1]] == 1)
-        if P[0] + 1 < M:
-            Q.push((P[0], P[1] + 1), d + 1, L[P[0]][P[1] + 1] == 1)
-        if P[0] - 1 >= 0:
-            Q.push((P[0] - 1, P[1]), d + 1, L[P[0] - 1][P[1]] == 1)
-        if P[0] - 1 >= 0:
-            Q.push((P[0], P[1] - 1), d + 1, L[P[0]][P[1] - 1] == 1)
+        indices = []
+        if P[0] + 1 < N and not searched[P[0] + 1][P[1]]:
+            indices.append((P[0] + 1, P[1]))
+            Q.push(((P[0] + 1, P[1]), d + 1, L[P[0] + 1][P[1]] == "1"))
+        if P[1] + 1 < M and not searched[P[0]][P[1] + 1]:
+            indices.append((P[0], P[1] + 1))
+            Q.push(((P[0], P[1] + 1), d + 1, L[P[0]][P[1] + 1] == "1"))
+        if P[0] - 1 >= 0 and not searched[P[0] - 1][P[1]]:
+            indices.append((P[0] - 1, P[1]))
+            Q.push(((P[0] - 1, P[1]), d + 1, L[P[0] - 1][P[1]] == "1"))
+        if P[1] - 1 >= 0 and not searched[P[0]][P[1] - 1]:
+            indices.append((P[0], P[1] - 1))
+            Q.push(((P[0], P[1] - 1), d + 1, L[P[0]][P[1] - 1] == "1"))
+
+        for index in indices:
+            searched[index[0]][index[1]] = True
+            Q.push((index, d + 1, L[index[0]][index[1]] == "1"))
+
+
+print(ans)
